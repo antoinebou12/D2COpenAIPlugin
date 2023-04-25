@@ -33,7 +33,7 @@ python main.py
 Once the local server is running:
 
 ```bash
-uvicorn main:app --host 127.0.0.1 --port 8000
+uvicorn main:app --host 127.0.0.1 --port 5003
 ```
 
 1. Navigate to https://chat.openai.com. 
