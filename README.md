@@ -1,7 +1,21 @@
-# ChatGPT plugins quickstart
+# UMLOpenAIPlugin 
 
-Get a Todo list ChatGPT plugin up and running in under 5 minutes using Python. If you do not already have plugin developer access, please [join the waitlist](https://openai.com/waitlist/plugins).
+UMLOpenAIPlugin is a plugin for ChatGPT that allows users to generate diagrams using PlantUML or Mermaid based on their preferences. This plugin enhances ChatGPT's capabilities by providing users with a seamless way to create diverse and creative output options in the form of diagrams.
 
+## Features
+- Generate diagrams using PlantUML or Mermaid
+- Seamlessly integrates with ChatGPT
+- User-friendly interface for requesting diagrams
+- Enhances ChatGPT's capabilities with diverse output options
+- 
+## Installation
+Before using the plugin, make sure to have the following prerequisites installed:
+
+- Python 3.6+
+- FastAPI
+- PlantUML
+- Mermaid
+- uvicorn
 ## Setup
 
 To install the required packages for this plugin, run the following command:
@@ -17,6 +31,10 @@ python main.py
 ```
 
 Once the local server is running:
+
+```bash
+uvicorn main:app --host 127.0.0.1 --port 8000
+```
 
 1. Navigate to https://chat.openai.com. 
 2. In the Model drop down, select "Plugins" (note, if you don't see it there, you don't have access yet).
