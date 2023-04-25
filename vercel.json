@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/generate_text",
+      "dest": "/app.py/generate_text"
+    },
+    {
+      "src": "/generate_diagram",
+      "dest": "/app.py/generate_diagram"
+    },
+    {
+      "src": "/openapi.yaml",
+      "dest": "/app.py/openapi.yaml"
+    },
+    {
+      "src": "/.well-known/ai-plugin.json",
+      "dest": "/app.py/.well-known/ai-plugin.json"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    }
+  ],
+  "static": {
+    "source": "static",
+    "basePath": "/static"
+  },
+  "env": {
+    "API_KEY": "your_gpt4_api_key"
+  }
+}
