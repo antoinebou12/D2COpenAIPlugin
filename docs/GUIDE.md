@@ -2,8 +2,8 @@
 
 UML DiagramGenerator with PlantUML Plugin for chatgpt
 
-__Creation Date:__ April 25, 2023  
-__Created By:__ Antoine Boucher  
+__Creation Date:__ April 25, 2023
+__Created By:__ Antoine Boucher
 ***
 
 
