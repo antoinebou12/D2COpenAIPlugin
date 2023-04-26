@@ -1,13 +1,13 @@
 openapi: 3.0.2
 info:
-  title: FastAPI
+  title: GPT Plugin Diagrams
   version: 0.1.0
 servers:
   - url: http://localhost:5003
 paths:
   /.well-known/ai-plugin.json:
     get:
-      operationId: plugin_manifest__well_known_ai_plugin_json_get
+      operationId: plugin_manifest
       responses:
         '200':
           content:
@@ -15,35 +15,28 @@ paths:
               schema: {}
           description: Successful Response
       summary: Plugin Manifest
-  /generate_diagram/{diagram_type}:
+  /generate_diagram/{diagram_type}/{text}:
     post:
-      operationId: generate_diagram_endpoint_generate_diagram__diagram_type__post
+      operationId: generate_diagram_endpoint
       parameters:
-      - in: path
-        name: diagram_type
-        required: true
-        schema:
-          title: Diagram Type
-          type: string
-      - in: query
-        name: input_file
-        required: false
-        schema:
-          title: Input File
-          type: string
-      - in: query
-        name: output_file
-        required: false
-        schema:
-          title: Output File
-          type: string
+        - in: path
+          name: diagram_type
+          required: true
+          schema:
+            title: Diagram Type
+            type: string
+        - in: path
+          name: text
+          required: true
+          schema:
+            title: Text
+            type: string
       responses:
         '200':
           content:
             application/json:
               schema:
-                title: Response Generate Diagram Endpoint Generate Diagram  Diagram
-                  Type  Post
+                title: Response Generate Diagram Endpoint
                 type: object
           description: Successful Response
         '422':
@@ -53,34 +46,9 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: Generate Diagram Endpoint
-  /generate_text/{prompt}:
-    get:
-      operationId: generate_text_endpoint_generate_text__prompt__get
-      parameters:
-      - in: path
-        name: prompt
-        required: true
-        schema:
-          title: Prompt
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                title: Response Generate Text Endpoint Generate Text  Prompt  Get
-                type: object
-          description: Successful Response
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-      summary: Generate Text Endpoint
   /logo.png:
     get:
-      operationId: plugin_logo_logo_png_get
+      operationId: plugin_logo
       responses:
         '200':
           content:
@@ -90,14 +58,14 @@ paths:
       summary: Plugin Logo
   /openapi.yaml:
     get:
-      operationId: openapi_spec_openapi_yaml_get
+      operationId: openapi_spec
       responses:
         '200':
           content:
             application/json:
               schema: {}
           description: Successful Response
-      summary: Openapi Spec
+      summary: OpenAPI Spec
 
 components:
   schemas:

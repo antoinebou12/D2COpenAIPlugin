@@ -109,7 +109,7 @@ class PlantUML:
             response.raise_for_status()
         except httpx.HTTPError as e:
             raise PlantUMLHTTPError(e, "") from e
-        return response.content
+        return response.content, url
 
 
     def process_file(self, filename, outfile=None, errorfile=None, directory=''):
@@ -210,7 +210,7 @@ class PlantUML:
         return '_' if b == 1 else '?'
 
     def generate_image_from_string(
-            self, plantuml_text: str, outfile: str):
+            self, plantuml_text: str, outfile: str) -> list[bytes, str, str]:
         """Generate an image from a string containing plantuml markup.
 
         :param str plantuml_text: The plantuml markup to render
@@ -220,9 +220,9 @@ class PlantUML:
         """
 
         try:
-            content = self.process(plantuml_text)
+            content, url = self.process(plantuml_text)
         except PlantUMLHTTPError as e:
             raise PlantUMLHTTPError(e, "") from e
         with open(outfile, 'wb') as out:
             out.write(content)
-        return content
+        return content, url, outfile
