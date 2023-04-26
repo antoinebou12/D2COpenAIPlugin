@@ -1,5 +1,5 @@
 {
-    "$schema_version": "v1",
+    "schema_version": "v1",
     "name_for_human": "DiagramsGenerator",
     "name_for_model": "diagramsgenerator",
     "description_for_human": "Plugin for generating diagrams using PlantUML and the diagrams library.",
@@ -13,5 +13,6 @@
         "is_user_authenticated": false
     },
     "logo_url": "http://localhost:5003/.well-known/logo.png",
-    "contact_email": "antoine.boucher012@gmail.com"
+    "contact_email": "antoine.boucher012@gmail.com",
+    "legal_info_url": "https://github.com/antoinebou12/UMLOpenAIPlugin"
 }

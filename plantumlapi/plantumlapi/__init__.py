@@ -12,7 +12,7 @@ from typing import Optional
 from zlib import compress
 import httpx
 
-from plantumlapi.exceptions import PlantUMLConnectionError, PlantUMLError, PlantUMLHTTPError
+from plantumlapi.plantumlapi.errors import PlantUMLConnectionError, PlantUMLError, PlantUMLHTTPError
 
 # Example usage
 diagram = """
@@ -96,9 +96,9 @@ class PlantUML:
         :param str plantuml_text: The plantuml markup to render
         :returns: the plantuml server image URL
         """
-        return self.url + self.deflate_and_encode(plantuml_text)
+        return f'{self.url}/{self.deflate_and_encode(plantuml_text)}'
 
-    def processes(self, plantuml_text: str):
+    def process(self, plantuml_text: str):
         """Processes the plantuml text into the raw PNG image data.
         :param str plantuml_text: The plantuml markup to render
         :returns: the raw image data
@@ -112,7 +112,7 @@ class PlantUML:
         return response.content
 
 
-    def processes_file(self, filename, outfile=None, errorfile=None, directory=''):
+    def process_file(self, filename, outfile=None, errorfile=None, directory=''):
         """Take a filename of a file containing plantuml text and processes
         it into a .png image.
 
@@ -161,7 +161,7 @@ class PlantUML:
         for i in range(0, len(data), 3):
             if i + 2 == len(data):
                 res += self._encode3bytes(data[i], data[i + 1], 0)
-            elif i + 1 == len(self):
+            elif i + 1 == len(data):
                 res += self._encode3bytes(data[i], 0, 0)
             else:
                 res += self._encode3bytes(data[i], data[i + 1], data[i + 2])
@@ -209,68 +209,20 @@ class PlantUML:
             return '-'
         return '_' if b == 1 else '?'
 
+    def generate_image_from_string(
+            self, plantuml_text: str, outfile: str):
+        """Generate an image from a string containing plantuml markup.
 
-    def generate_images(self,
-        files: list[str], out: str = '', server: str = 'http://www.plantuml.com/plantuml/img/'):
-        """
-        Generate images from plantuml defined files using plantuml server
-
-        :param files: The files to generate the image from
-        :param out: The output directory
-        :param server: The plantuml server
-        :return: True if the image was generated successfully
-        """
-        self.server = server
-        self.out = out
-
-        for file in files:
-            gen_success = self.processes_file(file, directory=out)
-            print(gen_success)
-
-        return True
-
-    def generate_image(
-        self,
-        file: str,
-        out: str = '.',
-        server: str = 'http://www.plantuml.com/plantuml/img/',
-        auth: dict = None
-    ):
-        """
-        Generate images from plantuml defined files using plantuml server
-
-        :param file: The file to generate the image from
-        :param out: The output directory
-        :param server: The plantuml server
-        :param auth: The authentication information
-        :return: True if the image was generated successfully
+        :param str plantuml_text: The plantuml markup to render
+        :param str outfile: Filename to write the output image to.
+        :returns: ``True`` if the image write succedded, ``False`` if there was
+        :raises: PlantUMLHTTPError if there was an error
         """
 
-        self.server = server
-        self.auth = auth
-        self.out = out
-
-        return self._error_if_not(
-            file, 'Please provide a file to generate the image from', out
-        )
-
-    def generate_image_from_url(self, url: str, out: str = '.'):
-        """
-        Generate images from plantuml defined files using plantuml server
-
-        :param url: The url to generate the image from
-        :param out: The output directory
-        :return: True if the image was generated successfully
-        """
-
-        return self._error_if_not(
-            url, 'Please provide a url to generate the image from', out
-        )
-
-    def _error_if_not(self, arg0, arg1, out):
-        if not arg0:
-            print(arg1)
-            return False
-        gen_success = self.processes_file(arg0, directory=out)
-        print(gen_success)
-        return True
+        try:
+            content = self.process(plantuml_text)
+        except PlantUMLHTTPError as e:
+            raise PlantUMLHTTPError(e, "") from e
+        with open(outfile, 'wb') as out:
+            out.write(content)
+        return content

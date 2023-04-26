@@ -17,11 +17,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import httpx
 
-app = FastAPI()
+from plantumlapi.plantumlapi import PlantUML
+
+app = FastAPI(
+    title="GPT Plugin Diagrams",
+    description="This plugin generates diagrams from text using GPT-4.",
+    version="0.1.0",
+    docs_url="/",
+    redoc_url=None,
+    servers=[{"url": "https://gpt-plugin-diagrams.antoineboucher.info"}]
+)
+
+
+app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
 
 # Use environment variables to store sensitive information
-API_KEY = os.environ.get('API_KEY')
-PLANTUML_JAR = os.environ.get('PLANTUML_JAR')
+API_KEY = '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'
 
 # Add logging configuration
 logging.basicConfig(level=logging.INFO,
@@ -45,26 +56,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/logo.png")
-async def plugin_logo():
-    filename = "logo.png"
-    return await FastAPI.send_file(filename, mimetype="image/png")
-
-@app.get("/.well-known/ai-plugin.json")
-async def plugin_manifest(request: Request):
-    host = request.headers["Host"]
-    with open("./.well-known/ai-plugin.json") as f:
-        text = f.read()
-        return JSONResponse(content=text, media_type="text/json")
-
-@app.get("/openapi.yaml")
-async def serve_openapi_yaml(request: Request):
-    yaml_file = os.path.join(os.path.dirname(__file__), 'openapi.yaml')
-    with open(yaml_file, 'r') as f:
-        yaml_data = f.read()
-    yaml_data = yaml.load(yaml_data, Loader=yaml.FullLoader)
-    return JSONResponse(content=yaml_data)
 
 async def generate_text(prompt: str):
     url = 'https://api.openai.com/v1/engines/gpt-4/completions'
@@ -92,20 +83,19 @@ async def generate_text(prompt: str):
         return None
 
 
-def generate_plantuml(input_file: str, output_file: str):
-    if not PLANTUML_JAR or not os.path.isfile(PLANTUML_JAR):
-        logger.error(
-            f"Error generating PlantUML diagram: Invalid PlantUML JAR file path: {PLANTUML_JAR}")
-        return None
-
+def generate_plantuml(input_file: str):
     if not input_file or not os.path.isfile(input_file):
-        logger.error(
-            f"Error generating PlantUML diagram: Invalid input file path: {input_file}")
+        logger.error(f"Error generating PlantUML diagram: Invalid input file path: {input_file}")
         return None
 
     try:
-        command = f"java -jar {PLANTUML_JAR} -tpng -o {output_file} {input_file}"
-        subprocess.run(command, shell=True)
+        plantuml = PlantUML(
+            server='http://www.plantuml.com/plantuml',
+            format='png',
+            proxy=None,
+            timeout=10
+        )
+        return plantuml.generate_image_from_url(input_file)
     except Exception as e:
         logger.error(f"Error generating PlantUML diagram: {str(e)}")
         return None
@@ -161,17 +151,13 @@ async def generate_text_endpoint(prompt: str):
 
 @app.post('/generate_diagram/{diagram_type}')
 async def generate_diagram_endpoint(diagram_type: str, input_file: Optional[str] = None, output_file: Optional[str] = None):
-    if diagram_type == 'plantuml':
-        generate_plantuml(input_file, output_file)
-    elif diagram_type == 'diagrams':
-        generate_diagrams(output_file)
-    elif diagram_type == 'mermaid':
-        generate_mermaid(input_file, output_file)
-    else:
-        return {'error': "Invalid diagram type."}
-
-    return {'output_file': output_file}
-
+    try:
+        with open('diagram.txt', 'w') as f:
+            f.write(input_file)
+        return {'output_file': generate_plantuml(input_file)}
+    except Exception as e:
+        logger.error(f"Error generating PlantUML diagram: {str(e)}")
+        return {'error': "An error occurred while generating the diagram."}
 
 @app.get("/logo.png")
 async def plugin_logo():

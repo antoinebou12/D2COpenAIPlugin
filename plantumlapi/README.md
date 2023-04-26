@@ -1,4 +1,4 @@
-# PyPlantuml
+# PlantumlApi
 
 Python interface with the PlantUML web. PlantUML is a library for generating UML diagrams from a simple text markup language.
 
@@ -11,11 +11,11 @@ This client defaults to the public PlantUML server but can be used against any s
 To install, run the following command:
 
 ```bash
-pip install pyplantuml
+pip install plantumlapi
 ```
 
 ```bash
-pip install git+https://github.com/antoinebou12/py-plantuml
+pip install git+https://github.com/antoinebou12/plantumlapi
 ```
 
 ## Command Line Usage
@@ -38,19 +38,14 @@ optional arguments:
 ## Usage
 
 ```python
-from pyplantuml import PlantUML
+from plantumlapi.plantumlapi import PlantUML
 
 # Create a PlantUML object, set the output directory and server
-p = PlantUML(output="output", server="https://www.plantuml.com/plantuml/duml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000")
-
-# Generate a diagram from a file
-p.process_file("diagram.puml")
+p = PlantUML(url="https://www.plantuml.com/plantuml/duml/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000")
 
 # Generate a diagram from a string
-p.process_string("@startuml\nclass Foo\n@enduml")
+p.process("@startuml\nclass Foo\n@enduml")
 
-# Generate a diagram from a string and save it to a file
-p.process_string("@startuml\nclass Foo\n@enduml", "output/diagram.png")
 ```
 
 ## Docker
@@ -63,11 +58,8 @@ docker run -d -p 8080:8080 plantuml/plantuml-server:jetty
 from pyplantuml import PlantUML
 
 # Create a PlantUML object, set the output directory and server
-p = PlantUML(output="output", server="http://localhost:8080")
-
-# Generate a diagram from a file
-p.process_file("diagram.puml")
+p = PlantUML(url="http://localhost:8080/png")
 
 # Generate a diagram from a string
-p.process_string("@startuml\nclass Foo\n@enduml")
+p.process("@startuml\nclass Foo\n@enduml")
 ```
