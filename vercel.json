@@ -12,7 +12,7 @@
       "dest": "/app.py/generate_text"
     },
     {
-      "src": "/generate_diagram",
+      "src": "/generate_diagram/(.*)",
       "dest": "/app.py/generate_diagram"
     },
     {
@@ -26,13 +26,24 @@
     {
       "src": "/static/(.*)",
       "dest": "/static/$1"
+    },
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
     }
   ],
   "static": {
     "source": "static",
     "basePath": "/static"
   },
-  "env": {
-    "API_KEY": "your_gpt4_api_key"
+  "public": {
+    "source": "public",
+    "basePath": "/public"
+  },
+  "functions": {
+    "api": {
+      "maxDuration": 10,
+      "memory": 128
+    }
   }
 }
