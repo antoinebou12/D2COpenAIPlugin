@@ -65,11 +65,15 @@ def generate_plantuml(text: str, output_file: str):
     # escape newlines for PlantUML
     text = text.replace('\n', ' \n ')
     text = text.replace('\\n', f'{chr(13)}{chr(10)}')
+    # newline after each @startuml
+    text = text.replace('@startuml', f'@startuml{chr(13)}{chr(10)}')
+    # newline after each @enduml
+    text = text.replace('@enduml', f'@enduml{chr(13)}{chr(10)}')
 
     logger.info(f"Text after replacing newlines: {text}")
     try:
         plantuml = PlantUML(
-            url='http://www.plantuml.com/plantuml/png',
+            url='https://www.planttext.com/api/plantuml/png',
         )
         content, url, output_file = plantuml.generate_image_from_string(text, output_file)
         with open(output_file, 'wb') as f:
@@ -79,14 +83,14 @@ def generate_plantuml(text: str, output_file: str):
         logger.error(f"Error generating PlantUML diagram: {str(e)}")
         return None, None, None
 
-@app.post('/generate_diagram/{diagram_type}/{text}')
+@app.post('/generate_diagram/{diagram_type}')
 async def generate_diagram_endpoint(diagram_type: str, text: str):
     logger.info(f"Generating diagram of type {diagram_type} from text: {text}")
     output_file = f'public/{diagram_type}-{uuid.uuid4()}.png'
     try:
         content, url, output_file = generate_plantuml(text, output_file)
         return {
-            'url_plantuml': url,
+            'url': url,
         }
     except Exception as e:
         logger.error(f"Error generating PlantUML diagram: {str(e)}")
