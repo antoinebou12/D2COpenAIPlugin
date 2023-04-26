@@ -34,9 +34,6 @@ app = FastAPI(
 app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
 app.mount("/public", StaticFiles(directory="public"), name="public")
 
-# Use environment variables to store sensitive information
-API_KEY = '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'
-
 # Add logging configuration
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
