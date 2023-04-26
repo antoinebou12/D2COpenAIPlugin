@@ -40,10 +40,4 @@
     "source": "public",
     "basePath": "/public"
   },
-  "functions": {
-    "api": {
-      "maxDuration": 10,
-      "memory": 128
-    }
-  }
 }
