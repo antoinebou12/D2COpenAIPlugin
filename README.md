@@ -4,6 +4,8 @@
 
 UMLOpenAIPlugin is a plugin for ChatGPT that allows users to generate diagrams using PlantUML or Mermaid based on their preferences. This plugin enhances ChatGPT's capabilities by providing users with a seamless way to create diverse and creative output options in the form of diagrams.
 
+[diagram](https://github.com/antoinebou12/UMLOpenAIPlugin/docs/DiagramGeneratorPlugin.gif)
+
 ## Features
 - Generate diagrams using PlantUML or Mermaid
 - Seamlessly integrates with ChatGPT
