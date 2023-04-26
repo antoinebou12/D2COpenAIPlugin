@@ -61,8 +61,12 @@ app.add_middleware(
 )
 
 def generate_plantuml(text: str, output_file: str):
+    logger.info(f"Generating PlantUML diagram from text: {text}")
+    # escape newlines for PlantUML
     text = text.replace('\n', ' \n ')
-    text = re.sub('\s+', ' ', text )
+    text = text.replace('\\n', f'{chr(13)}{chr(10)}')
+
+    logger.info(f"Text after replacing newlines: {text}")
     try:
         plantuml = PlantUML(
             url='http://www.plantuml.com/plantuml/png',
