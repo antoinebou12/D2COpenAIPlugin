@@ -1,2 +1,5 @@
-quart
-quart-cors
+fastapi==0.68.2
+uvicorn==0.15.0
+diagrams==0.20.0
+plantumlapi==0.1.2
+httpx==0.22.0
