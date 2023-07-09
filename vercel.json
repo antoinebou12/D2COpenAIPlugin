@@ -1,5 +1,5 @@
 {
-  "devCommand": "uvicorn main:app --host 0.0.0.0 --port 5003",
+  "devCommand": "uvicorn app:app --host 0.0.0.0 --port 5003",
   "version": 2,
   "builds": [
     {
