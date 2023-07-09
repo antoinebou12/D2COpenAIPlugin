@@ -35,13 +35,5 @@
       "src": "/public/(.*)",
       "dest": "/public/$1"
     }
-  ],
-  "static": {
-    "source": "static",
-    "basePath": "/static"
-  },
-  "public": {
-    "source": "public",
-    "basePath": "/public"
-  }
+  ]
 }
