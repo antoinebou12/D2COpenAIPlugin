@@ -9,3 +9,9 @@ beautifulsoup4
 httpx
 rich
 docker
+pytest
+pre-commit
+sphinx
+mkdocs
+mkdocstrings[python]
+mkdocs-material
