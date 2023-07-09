@@ -1,6 +1,8 @@
 import pytest
 from unittest import mock
-from plantumlapi.plantumlapi import PlantUMLHTTPError
+
+from plantumlapi import PlantUMLHTTPError
+
 
 def test_PlantUMLHTTPError():
     response = mock.Mock(status_code=404, reason_phrase='Not Found')

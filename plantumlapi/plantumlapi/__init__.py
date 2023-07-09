@@ -12,7 +12,37 @@ from typing import Optional
 from zlib import compress
 import httpx
 
-from plantumlapi.plantumlapi.errors import PlantUMLConnectionError, PlantUMLError, PlantUMLHTTPError
+"""
+Exceptions for PlantUML.
+"""
+
+
+class PlantUMLError(Exception):
+    """
+    Error in processing.
+    """
+    pass
+
+
+class PlantUMLConnectionError(PlantUMLError):
+    """
+    Error connecting or talking to PlantUML Server.
+    """
+    pass
+
+
+class PlantUMLHTTPError(Exception):
+    """
+    Request to PlantUML server returned HTTP Error.
+    """
+    def __init__(self, response, content):
+        self.response = response
+        self.content = content
+        self.url = getattr(response, "request", None)
+        self.url = self.url.url if self.url else "unknown URL"
+        self.message = f"HTTP Error : {self.url} {response}"
+        super(PlantUMLHTTPError, self).__init__(self.message)
+
 
 # Example usage
 diagram = """
@@ -111,25 +141,16 @@ class PlantUML:
             raise PlantUMLHTTPError(e, "") from e
         return response.content, url
 
-
     def process_file(self, filename, outfile=None, errorfile=None, directory=''):
         """Take a filename of a file containing plantuml text and processes
         it into a .png image.
-
-        :param str filename: Text file containing plantuml markup
-        :param str outfile: Filename to write the output image to. If not
-                    supplied, then it will be the input filename with the
-                    file extension replaced with '.png'.
-        :param str errorfile: Filename to write server html error page
-                    to. If this is not supplined, then it will be the
-                    input ``filename`` with the extension replaced with
-                    '_error.html'.
-        :returns: ``True`` if the image write succedded, ``False`` if there was
-                    an error written to ``errorfile``.
+        ...
         """
         data = open(filename).read()
         try:
-            content = self.processes(data)
+            content, url = self.process(data)
+            if not content:  # Add this check
+                raise PlantUMLHTTPError("Server returned an error", "")
         except PlantUMLHTTPError as e:
             with open(path.join(directory, errorfile), 'w') as err:
                 err.write(e.content)

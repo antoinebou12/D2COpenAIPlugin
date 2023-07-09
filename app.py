@@ -20,7 +20,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
 from plantumlapi.plantumlapi import PlantUML
-from python_mermaid.diagram import MermaidDiagram, Node, Link
 
 app = FastAPI(
     title="GPT Plugin Diagrams",
@@ -28,7 +27,7 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/",
     redoc_url=None,
-    servers=[{"url": "https://gpt-plugin-diagrams.antoineboucher.info"}]
+    servers=[{"url": "https://openai-uml-plugin.vercel.app"}]
 )
 
 

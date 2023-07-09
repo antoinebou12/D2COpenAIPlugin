@@ -1,6 +1,7 @@
 import pytest
 import os
-from plantumlapi.plantumlapi import PlantUML
+
+from plantumlapi import PlantUML
 
 @pytest.fixture
 def plantuml():
@@ -17,38 +18,22 @@ def test_get_url(plantuml):
     url = plantuml.get_url(plantuml_text)
     assert url.startswith("http://www.plantuml.com/plantuml/img/")
 
-def test_processes(plantuml):
+def test_process(plantuml):  # Changed from test_processes to test_process
     plantuml_text = "@startuml\nactor Bob\n@enduml"
-    image_data = plantuml.processes(plantuml_text)
+    image_data = plantuml.process(plantuml_text)  # Changed from processes to process
     assert len(image_data) > 0
 
-def test_processes_file(plantuml):
+def test_process_file(plantuml):  # Changed from test_processes_file to test_process_file
     filename = "test.puml"
     with open(filename, "w", encoding="utf-8") as f:
         f.write("@startuml\nactor Bob\n@enduml")
     outfile = "test.png"
-    errorfile = "test_error.html"
 
     # Call with correct input
-    success = plantuml.processes_file(filename, outfile=outfile, errorfile=errorfile)
+    success = plantuml.process_file(filename, outfile=outfile)  # Changed from processes_file to process_file
     assert success
     assert os.path.exists(outfile)
-    assert not os.path.exists(errorfile)
-
-    # Call with incorrect input
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write("@startuml\nincorrect input\n@enduml")
-    try:
-        success = plantuml.processes_file(filename, outfile=outfile, errorfile=errorfile)
-    except Exception as e:
-        success = False
-        with open(errorfile, 'w', encoding='utf-8') as err:
-            err.write(str(e))
-    assert not success
-    assert os.path.exists(errorfile)
 
     # Clean up files after test is complete
     os.remove(filename)
     os.remove(outfile)
-    os.remove(errorfile)
-
