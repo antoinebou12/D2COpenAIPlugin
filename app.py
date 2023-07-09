@@ -20,6 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
 from plantumlapi.plantumlapi import PlantUML
+from python_mermaid.diagram import MermaidDiagram, Node, Link
 
 app = FastAPI(
     title="GPT Plugin Diagrams",
@@ -78,18 +79,56 @@ def generate_plantuml(text: str, output_file: str):
     except Exception as e:
         logger.error(f"Error generating PlantUML diagram: {str(e)}")
         return None, None, None
-
-@app.post('/generate_diagram/{diagram_type}')
-async def generate_diagram_endpoint(diagram_type: str, text: str):
-    logger.info(f"A request was made to generate a {diagram_type} diagram.")
-    output_file = f'public/{diagram_type}-{uuid.uuid4()}.png'
+    
+@app.post('/generate_mermaid')
+async def generate_mermaid_endpoint(nodes: List[str], links: List[Tuple[str, str]]):
+    logger.info(f"A request was made to generate a Mermaid diagram.")
     try:
-        content, url, output_file = generate_plantuml(text, output_file)
+        diagram_nodes = [Node(node) for node in nodes]
+        diagram_links = [Link(Node(link[0]), Node(link[1])) for link in links]
+
+        chart = MermaidDiagram(
+            title="Diagram",
+            nodes=diagram_nodes,
+            links=diagram_links
+        )
+
         return {
-            'url': url,
+            'mermaid_syntax': str(chart),
         }
     except Exception as e:
-        logger.error(f"Error generating PlantUML diagram: {str(e)}")
+        logger.error(f"Error generating Mermaid diagram: {str(e)}")
+        return {'error': "An error occurred while generating the diagram."}
+
+@app.post('/generate_diagram/{diagram_type}')
+async def generate_diagram_endpoint(diagram_type: str, nodes: Optional[List[str]] = None, links: Optional[List[Tuple[str, str]]] = None, text: Optional[str] = None):
+    logger.info(f"A request was made to generate a {diagram_type} diagram.")
+    try:
+        if diagram_type == "plantuml":
+            if text is None:
+                raise ValueError("PlantUML diagrams require 'text' parameter")
+            output_file = f'public/{diagram_type}-{uuid.uuid4()}.png'
+            content, url, output_file = generate_plantuml(text, output_file)
+            return {
+                'url': url,
+            }
+        elif diagram_type == "mermaid":
+            if nodes is None or links is None:
+                raise ValueError("Mermaid diagrams require 'nodes' and 'links' parameters")
+            diagram_nodes = [Node(node) for node in nodes]
+            diagram_links = [Link(Node(link[0]), Node(link[1])) for link in links]
+            chart = MermaidDiagram(
+                title="Diagram",
+                nodes=diagram_nodes,
+                links=diagram_links
+            )
+            return {
+                'mermaid_syntax': str(chart),
+            }
+        else:
+            raise ValueError(f"Unknown diagram type: {diagram_type}")
+    except Exception as e:
+        logger.error(f"Error generating {diagram_type} diagram: {str(e)}")
         return {'error': "An error occurred while generating the diagram."}
 
 @app.get("/logo.png")

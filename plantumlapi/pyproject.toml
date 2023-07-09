@@ -28,11 +28,11 @@ classifiers=[
 
 [tool.poetry.dependencies]
 python = "^3.10"
-httpx = "^0.23.3"
+httpx = "^0.24.0"
 beautifulsoup4 = "^4.12.0"
 rich = "^13.3.2"
 pydantic = "^1.8.2"
-python-dotenv = "^0.19.2"
+python-dotenv = "^0.21.0"
 typer = "^0.4.0"
 docker = "^6.0.1"
 
@@ -45,7 +45,7 @@ black = "^23.1.0"
 genbadge = "^1.0.0"
 mkdocs = "^1.4.2"
 mkdocs-material = "^9.1.5"
-mkdocstrings = "^0.20.0"
+mkdocstrings = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -8,8 +8,8 @@
   ],
   "routes": [
     {
-      "src": "/generate_text",
-      "dest": "/app.py/generate_text"
+      "src": "/generate_mermaid",
+      "dest": "/app.py/generate_mermaid"
     },
     {
       "src": "/generate_diagram/(.*)",
@@ -22,6 +22,10 @@
     {
       "src": "/.well-known/ai-plugin.json",
       "dest": "/app.py/.well-known/ai-plugin.json"
+    },
+    {
+      "src": "/logo.png",
+      "dest": "/app.py/logo.png"
     },
     {
       "src": "/static/(.*)",
@@ -39,11 +43,5 @@
   "public": {
     "source": "public",
     "basePath": "/public"
-  },
-  "functions": {
-    "api": {
-      "maxDuration": 10,
-      "memory": 128
-    }
   }
 }
