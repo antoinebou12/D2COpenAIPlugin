@@ -1,4 +1,5 @@
 {
+  "devCommand": "uvicorn main:app --host 0.0.0.0 --port 5003",
   "version": 2,
   "builds": [
     {
@@ -8,32 +9,8 @@
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/app.py"
-    },
-    {
-      "src": "/generate_diagram/(.*)",
-      "dest": "/app.py"
-    },
-    {
-      "src": "/openapi.yaml",
-      "dest": "/.well-known/openapi.yaml"
-    },
-    {
-      "src": "/.well-known/ai-plugin.json",
-      "dest": "/.well-known/ai-plugin.json"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/public/(.*)",
-      "dest": "/public/$1"
+      "src": "/(.*)",
+      "dest": "/app.py/$1"
     }
   ]
 }
