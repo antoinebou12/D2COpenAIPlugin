@@ -8,24 +8,24 @@
   ],
   "routes": [
     {
-      "src": "/generate_mermaid",
-      "dest": "/app.py/generate_mermaid"
+      "src": "/",
+      "dest": "/app.py"
     },
     {
       "src": "/generate_diagram/(.*)",
-      "dest": "/app.py/generate_diagram"
+      "dest": "/app.py"
     },
     {
       "src": "/openapi.yaml",
-      "dest": "/app.py/openapi.yaml"
+      "dest": "/.well-known/openapi.yaml"
     },
     {
       "src": "/.well-known/ai-plugin.json",
-      "dest": "/app.py/.well-known/ai-plugin.json"
+      "dest": "/.well-known/ai-plugin.json"
     },
     {
-      "src": "/logo.png",
-      "dest": "/app.py/logo.png"
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico"
     },
     {
       "src": "/static/(.*)",
