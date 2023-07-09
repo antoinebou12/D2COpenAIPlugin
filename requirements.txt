@@ -3,3 +3,9 @@ uvicorn==0.15.0
 diagrams==0.20.0
 httpx==0.22.0
 PyYAML
+typer
+httpx
+beautifulsoup4
+httpx
+rich
+docker
