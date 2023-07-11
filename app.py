@@ -45,21 +45,20 @@ logger = logging.getLogger(__name__)
 app.mount(
     "/openapi", StaticFiles(directory=os.path.dirname(__file__)), name="openapi")
 
+class CORSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = Response("Temporary", status_code=400)
+        origin_regex = "https://.*\.antoinebou12\.vercel\.app"
+        if 'origin' in request.headers:
+            origin = request.headers['origin']
+            if re.match(origin_regex, origin) or origin in ["https://chat.openai.com", "https://openai-uml-plugin.vercel.app"]:
+                response = await call_next(request)
+                response.headers["Access-Control-Allow-Origin"] = origin
+                response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+                response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
 
-# CORS middleware configuration
-origins = ["https://chat.openai.com"]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.get("/hello")
-async def root():
-    return {"message": "Hello World"}
+app.add_middleware(CORSMiddleware)
 
 def generate_plantuml(text: str, output_file: str):
     # escape newlines for PlantUML
