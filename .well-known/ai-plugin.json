@@ -1,18 +1,18 @@
 {
     "schema_version": "v1",
-    "name_for_human": "DiagramsGenerator",
-    "name_for_model": "diagramsgenerator",
-    "description_for_human": "Plugin for generating diagrams using PlantUML and the diagrams library.",
-    "description_for_model": "Plugin for generating diagrams using PlantUML and the diagrams library.",
+    "name_for_human": "Diagram2Code",
+    "name_for_model": "Diagram2Code",
+    "description_for_human": "Plugin for generating diagrams using PlantUML, Mermaid, D2.",
+    "description_for_model": "Plugin for generating diagrams using PlantUML, Mermaid, D2.",
     "auth": {
         "type": "none"
     },
     "api": {
         "type": "openapi",
-        "url": "http://localhost:5003/.well-known/openapi.yaml",
+        "url": "https://openai-uml-plugin.vercel.app/.well-known/openapi.yaml",
         "is_user_authenticated": false
     },
-    "logo_url": "http://localhost:5003/.well-known/logo.png",
+    "logo_url": "https://openai-uml-plugin.vercel.app/.well-known/logo.png",
     "contact_email": "antoine.boucher012@gmail.com",
-    "legal_info_url": "https://github.com/antoinebou12/UMLOpenAIPlugin"
+    "legal_info_url": "https://github.com/antoinebou12/D2COpenAIPlugin"
 }

@@ -1,12 +1,17 @@
 {
     "openapi": "3.0.2",
     "info": {
-        "title": "GPT Plugin Diagrams",
+        "title": "Diagram to Code",
         "version": "1.1.1"
     },
     "servers": [
         {
-            "url": "http://localhost:5003"
+            "url": "https://openai-uml-plugin.vercel.app",
+            "description": "Production server"
+        }
+        {
+            "url": "http://localhost:5003",
+            "description": "Production server"
         }
     ],
     "paths": {
@@ -29,35 +34,43 @@
         "/generate_diagram": {
             "post": {
                 "operationId": "generate_diagram_endpoint",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "lang",
-                        "required": true,
-                        "schema": {
-                            "title": "Language",
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "diagram_type",
-                        "required": true,
-                        "schema": {
-                            "title": "Diagram Type",
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "text",
-                        "required": true,
-                        "schema": {
-                            "title": "Text",
-                            "type": "string"
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "lang": {
+                                        "type": "string",
+                                        "title": "Diagram Language",
+                                        "description": "The language of the diagram like plantuml, mermaid, etc."
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "title": "Diagram Type",
+                                        "description": "The type of the diagram like class, sequence, etc."
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "title": "Diagram Code",
+                                        "description": "The code of the diagram."
+                                    },
+                                    "theme": {
+                                        "type": "string",
+                                        "title": "Diagram Theme",
+                                        "description": "The theme of the diagram like default, dark, etc."
+                                    }
+                                },
+                                "required": [
+                                    "lang",
+                                    "type",
+                                    "code"
+                                ]
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "content": {

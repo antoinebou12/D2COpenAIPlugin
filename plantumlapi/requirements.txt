@@ -1,6 +1,0 @@
-typer
-httpx
-beautifulsoup4
-httpx
-rich
-docker
