@@ -46,7 +46,7 @@ app.add_middleware(
 class DiagramRequest(BaseModel):
     lang: str
     diagram_type: str
-    text: str
+    diagram_text: str
 
 @app.post("/generate_diagram")
 async def generate_diagram_endpoint(diagram: DiagramRequest):
@@ -55,7 +55,7 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
         if diagram.lang != "plantuml":
             raise HTTPException(status_code=422, detail=f"Unknown diagram type: {diagram.lang}")
         output_file = f"public/{diagram.lang}-{diagram.diagram_type}-{uuid.uuid4()}.png"
-        content, url, output_file = generate_plantuml(diagram.text, output_file)
+        content, url, output_file = generate_plantuml(diagram.diagram_text, output_file)
         return {"url": url}
     except HTTPException as e:
         raise e

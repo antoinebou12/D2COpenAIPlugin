@@ -50,7 +50,7 @@
                     },
                     {
                         "in": "query",
-                        "name": "text",
+                        "name": "diagram_text",
                         "required": true,
                         "schema": {
                             "title": "Text",
