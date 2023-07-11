@@ -129,6 +129,10 @@ async def openapi_spec():
     with open("./.well-known/openapi.yaml") as f:
         return f.read()
 
+@app.get("/openapi.json", response_class=PlainTextResponse)
+async def openapi_spec_json():
+    with open("./.well-known/openapi.json") as f:
+        return f.read()
 
 def main():
     import uvicorn
