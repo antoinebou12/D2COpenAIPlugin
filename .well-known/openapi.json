@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "GPT Plugin Diagrams",
-        "version": "0.1.0"
+        "version": "1.1.1"
     },
     "servers": [
         {
@@ -26,12 +26,21 @@
                 "summary": "Plugin Manifest"
             }
         },
-        "/generate_diagram/{diagram_type}": {
+        "/generate_diagram": {
             "post": {
                 "operationId": "generate_diagram_endpoint",
                 "parameters": [
                     {
-                        "in": "path",
+                        "in": "query",
+                        "name": "lang",
+                        "required": true,
+                        "schema": {
+                            "title": "Language",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
                         "name": "diagram_type",
                         "required": true,
                         "schema": {

@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: GPT Plugin Diagrams
-  version: 0.1.0
+  version: 1.1.1
 servers:
   - url: http://localhost:5003
 paths:
@@ -9,48 +9,54 @@ paths:
     get:
       operationId: plugin_manifest
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema: {}
           description: Successful Response
       summary: Plugin Manifest
-  /generate_diagram/{diagram_type}:
+  /generate_diagram:
     post:
       operationId: generate_diagram_endpoint
       parameters:
-        - in: path
+        - in: query
+          name: lang
+          required: true
+          schema:
+            title: Language
+            type: string
+        - in: query
           name: diagram_type
           required: true
           schema:
             title: Diagram Type
             type: string
         - in: query
-          name: text
+          name: diagram_text
           required: true
           schema:
-            title: Text
+            title: Diagram Text
             type: string
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 title: Response Generate Diagram Endpoint
                 type: object
           description: Successful Response
-        '422':
+        "422":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
       summary: Generate Diagram Endpoint
   /logo.png:
     get:
       operationId: plugin_logo
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema: {}
@@ -60,7 +66,7 @@ paths:
     get:
       operationId: openapi_spec
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema: {}
@@ -73,7 +79,7 @@ components:
       properties:
         detail:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            $ref: "#/components/schemas/ValidationError"
           title: Detail
           type: array
       title: HTTPValidationError
@@ -83,8 +89,8 @@ components:
         loc:
           items:
             anyOf:
-            - type: string
-            - type: integer
+              - type: string
+              - type: integer
           title: Location
           type: array
         msg:
@@ -94,8 +100,8 @@ components:
           title: Error Type
           type: string
       required:
-      - loc
-      - msg
-      - type
+        - loc
+        - msg
+        - type
       title: ValidationError
       type: object

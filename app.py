@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.base import BaseHTTPMiddleware
+import re
 from plantumlapi.plantumlapi import PlantUML
 
 app = FastAPI(
@@ -16,7 +16,7 @@ app = FastAPI(
     version="1.1.1",
     docs_url="/",
     redoc_url=None,
-    servers=[{"url": "https://openai-uml-plugin.vercel.app"}],
+    servers=[{"url": "https://openai-uml-plugin.vercel.app"}, {"url": "http://localhost:5003"}],
 )
 
 app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
@@ -28,37 +28,39 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class CORSMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        response = Response("Temporary", status_code=400)
-        origin_regex = "https://.*\.antoinebou12\.vercel\.app"
-        if 'origin' in request.headers:
-            origin = request.headers['origin']
-            if re.match(origin_regex, origin) or origin in ["https://chat.openai.com", "https://openai-uml-plugin.vercel.app"]:
-                response = await call_next(request)
-                response.headers["Access-Control-Allow-Origin"] = origin
-                response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-                response.headers["Access-Control-Allow-Headers"] = "*"
-        return response
+origins = [
+    "https://chat.openai.com",
+    "https://openai-uml-plugin.vercel.app",
+    "http://localhost:5003",
+    "http://0.0.0.0:5003",
+]
 
-app.add_middleware(CORSMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
 
 class DiagramRequest(BaseModel):
+    lang: str
+    diagram_type: str
     text: str
 
-@app.post("/generate_diagram/{diagram_type}")
-async def generate_diagram_endpoint(diagram_type: str, text: DiagramRequest):
-    logger.info(f"A request was made to generate a {diagram_type} diagram.")
+@app.post("/generate_diagram")
+async def generate_diagram_endpoint(diagram: DiagramRequest):
+    logger.info(f"A request was made to generate a {diagram.lang} diagram.")
     try:
-        if diagram_type != "plantuml":
-            raise HTTPException(status_code=422, detail=f"Unknown diagram type: {diagram_type}")
-        output_file = f"public/{diagram_type}-{uuid.uuid4()}.png"
-        content, url, output_file = generate_plantuml(text.text, output_file)
+        if diagram.lang != "plantuml":
+            raise HTTPException(status_code=422, detail=f"Unknown diagram type: {diagram.lang}")
+        output_file = f"public/{diagram.lang}-{diagram.diagram_type}-{uuid.uuid4()}.png"
+        content, url, output_file = generate_plantuml(diagram.text, output_file)
         return {"url": url}
     except HTTPException as e:
         raise e
     except Exception as e:
-        logger.error(f"Error generating {diagram_type} diagram: {str(e)}")
+        logger.error(f"Error generating {diagram.lang} diagram: {str(e)}")
         return {"error": "An error occurred while generating the diagram."}
 
 @app.get("/logo.png")
