@@ -231,7 +231,7 @@ class PlantUML:
         return '_' if b == 1 else '?'
 
     def generate_image_from_string(
-            self, plantuml_text: str, outfile: str) -> Tuple[bytes, str, str]:
+            self, plantuml_text: str) -> Tuple[bytes, str, str]:
         """Generate an image from a string containing plantuml markup.
 
         :param str plantuml_text: The plantuml markup to render
@@ -244,6 +244,6 @@ class PlantUML:
             content, url = self.process(plantuml_text)
         except PlantUMLHTTPError as e:
             raise PlantUMLHTTPError(e, "") from e
-        with open(outfile, 'wb') as out:
-            out.write(content)
-        return content, url, outfile
+        # with open(outfile, 'wb') as out:
+        #     out.write(content)
+        return content, url

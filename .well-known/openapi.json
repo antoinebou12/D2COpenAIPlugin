@@ -43,15 +43,18 @@
                                 "properties": {
                                     "lang": {
                                         "type": "string",
-                                        "description": "Language"
+                                        "title": "Diagram Language",
+                                        "description": "The language of the diagram like plantuml, mermaid, etc."
                                     },
                                     "diagram_type": {
                                         "type": "string",
-                                        "description": "Diagram Type"
+                                        "title": "Diagram Type",
+                                        "description": "The type of the diagram like class, sequence, etc."
                                     },
                                     "diagram_text": {
                                         "type": "string",
-                                        "description": "Text"
+                                        "title": "Diagram Text",
+                                        "description": "The text of the diagram."
                                     }
                                 },
                                 "required": [

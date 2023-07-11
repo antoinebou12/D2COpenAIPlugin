@@ -54,8 +54,7 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
     try:
         if diagram.lang != "plantuml":
             raise HTTPException(status_code=422, detail=f"Unknown diagram type: {diagram.lang}")
-        output_file = f"public/{diagram.lang}-{diagram.diagram_type}-{uuid.uuid4()}.png"
-        content, url, output_file = generate_plantuml(diagram.diagram_text, output_file)
+        content, url = generate_plantuml(diagram.diagram_text)
         return {"url": url}
     except HTTPException as e:
         raise e
@@ -82,17 +81,17 @@ async def openapi_spec_json():
     with open("./.well-known/openapi.json") as f:
         return f.read()
 
-def generate_plantuml(text: str, output_file: str):
+def generate_plantuml(text: str):
     text = text.replace("\n", " \n ").replace("\\n", f"{chr(13)}{chr(10)}")
     text = text.replace("@startuml", f"{chr(13)}{chr(10)}@startuml{chr(13)}{chr(10)}")
     text = text.replace("@enduml", f"{chr(13)}{chr(10)}@enduml{chr(13)}{chr(10)}")
     logger.info(f"Text after replacing newlines: {text}")
     try:
         plantuml = PlantUML(url="https://www.plantuml.com/plantuml/dpng")
-        content, url, output_file = plantuml.generate_image_from_string(text, output_file)
-        with open(output_file, "wb") as f:
-            f.write(content)
-        return content, url, output_file
+        content, url = plantuml.generate_image_from_string(text)
+        # with open(output_file, "wb") as f:
+        #     f.write(content)
+        return content, url
     except Exception as e:
         logger.error(f"Error generating PlantUML diagram: {str(e)}")
         return None, None, None

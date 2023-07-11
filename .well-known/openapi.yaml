@@ -30,10 +30,12 @@ paths:
               properties:
                 lang:
                   type: string
-                  title: Language
+                  title: Diagram Language
+                  description: The language of the diagram like plantuml, mermaid, etc.
                 diagram_type:
                   type: string
                   title: Diagram Type
+                  description: The type of the diagram like class, sequence, etc.
                 diagram_text:
                   type: string
                   title: Diagram Text
