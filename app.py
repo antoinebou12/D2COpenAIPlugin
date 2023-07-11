@@ -125,6 +125,12 @@ async def plugin_manifest(request: Request):
         text = f.read()
         return JSONResponse(content=text, media_type="text/json")
 
+@app.get("/ai-plugin.json")
+async def plugin_manifest(request: Request):
+    host = request.headers["Host"]
+    with open("./.well-known/ai-plugin.json") as f:
+        text = f.read()
+        return JSONResponse(content=text, media_type="text/json")
 
 @app.get("/openapi.yaml", response_class=PlainTextResponse)
 async def openapi_spec():
