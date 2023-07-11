@@ -18,25 +18,26 @@ paths:
   /generate_diagram:
     post:
       operationId: generate_diagram_endpoint
-      parameters:
-        - in: query
-          name: lang
-          required: true
-          schema:
-            title: Language
-            type: string
-        - in: query
-          name: diagram_type
-          required: true
-          schema:
-            title: Diagram Type
-            type: string
-        - in: query
-          name: diagram_text
-          required: true
-          schema:
-            title: Diagram Text
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lang:
+                  type: string
+                  title: Language
+                diagram_type:
+                  type: string
+                  title: Diagram Type
+                diagram_text:
+                  type: string
+                  title: Diagram Text
+              required:
+                - lang
+                - diagram_type
+                - diagram_text
       responses:
         "200":
           content:
