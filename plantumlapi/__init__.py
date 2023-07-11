@@ -8,7 +8,7 @@ PlantUML markup into PNG images.
 
 from os import makedirs, path
 from io import open
-from typing import Optional
+from typing import List, Optional
 from zlib import compress
 import httpx
 
@@ -231,7 +231,7 @@ class PlantUML:
         return '_' if b == 1 else '?'
 
     def generate_image_from_string(
-            self, plantuml_text: str, outfile: str) -> list[bytes, str, str]:
+            self, plantuml_text: str, outfile: str) -> List[bytes, str, str]:
         """Generate an image from a string containing plantuml markup.
 
         :param str plantuml_text: The plantuml markup to render

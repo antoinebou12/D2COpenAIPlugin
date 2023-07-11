@@ -14,7 +14,8 @@ from diagrams.aws.network import ELB
 
 import yaml
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -25,12 +26,11 @@ from plantumlapi.plantumlapi import PlantUML
 app = FastAPI(
     title="GPT Plugin Diagrams",
     description="This plugin generates diagrams from text using GPT-4.",
-    version="0.1.0",
+    version="1.1.1",
     docs_url="/",
     redoc_url=None,
     servers=[{"url": "https://openai-uml-plugin.vercel.app"}],
 )
-
 
 app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
 app.mount("/public", StaticFiles(directory="public"), name="public")
@@ -124,12 +124,10 @@ async def plugin_manifest(request: Request):
         return JSONResponse(content=text, media_type="text/json")
 
 
-@app.get("/openapi.yaml")
-async def openapi_spec(request: Request):
-    host = request.headers["Host"]
+@app.get("/openapi.yaml", response_class=PlainTextResponse)
+async def openapi_spec():
     with open("./.well-known/openapi.yaml") as f:
-        text = f.read()
-        return JSONResponse(content=text, media_type="text/yaml")
+        return f.read()
 
 
 def main():

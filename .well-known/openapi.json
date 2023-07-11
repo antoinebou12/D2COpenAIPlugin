@@ -1,0 +1,161 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "GPT Plugin Diagrams",
+        "version": "0.1.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:5003"
+        }
+    ],
+    "paths": {
+        "/.well-known/ai-plugin.json": {
+            "get": {
+                "operationId": "plugin_manifest",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        },
+                        "description": "Successful Response"
+                    }
+                },
+                "summary": "Plugin Manifest"
+            }
+        },
+        "/generate_diagram/{diagram_type}": {
+            "post": {
+                "operationId": "generate_diagram_endpoint",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "diagram_type",
+                        "required": true,
+                        "schema": {
+                            "title": "Diagram Type",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "text",
+                        "required": true,
+                        "schema": {
+                            "title": "Text",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response Generate Diagram Endpoint",
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        },
+                        "description": "Validation Error"
+                    }
+                },
+                "summary": "Generate Diagram Endpoint"
+            }
+        },
+        "/logo.png": {
+            "get": {
+                "operationId": "plugin_logo",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        },
+                        "description": "Successful Response"
+                    }
+                },
+                "summary": "Plugin Logo"
+            }
+        },
+        "/openapi.yaml": {
+            "get": {
+                "operationId": "openapi_spec",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        },
+                        "description": "Successful Response"
+                    }
+                },
+                "summary": "OpenAPI Spec"
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "title": "Detail",
+                        "type": "array"
+                    }
+                },
+                "title": "HTTPValidationError",
+                "type": "object"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "title": "Location",
+                        "type": "array"
+                    },
+                    "msg": {
+                        "title": "Message",
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Error Type",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError",
+                "type": "object"
+            }
+        }
+    }
+}
