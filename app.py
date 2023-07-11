@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import re
-from plantumlapi.plantumlapi import PlantUML
+from plantuml.plantumlapi import PlantUML
 
 app = FastAPI(
     title="GPT Plugin Diagrams",

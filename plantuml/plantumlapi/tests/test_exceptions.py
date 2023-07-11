@@ -1,7 +1,7 @@
 import pytest
 from unittest import mock
 
-from plantumlapi import PlantUMLHTTPError
+from plantuml import PlantUMLHTTPError
 
 
 def test_PlantUMLHTTPError():

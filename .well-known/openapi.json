@@ -6,7 +6,12 @@
     },
     "servers": [
         {
-            "url": "http://localhost:5003"
+            "url": "https://openai-uml-plugin.vercel.app",
+            "description": "Production server"
+        },
+        {
+            "url": "http://localhost:5003",
+            "description": "Local development server"
         }
     ],
     "paths": {

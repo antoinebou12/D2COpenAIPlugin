@@ -1,7 +1,7 @@
 import pytest
 import os
 
-from plantumlapi import PlantUML
+from plantuml import PlantUML
 
 @pytest.fixture
 def plantuml():
