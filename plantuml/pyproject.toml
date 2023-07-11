@@ -33,7 +33,7 @@ beautifulsoup4 = "^4.12.0"
 rich = "^13.3.2"
 pydantic = "^1.8.2"
 python-dotenv = "^0.21.0"
-typer = "^0.4.0"
+typer = "^0.9.0"
 docker = "^6.0.1"
 
 [tool.poetry.group.dev.dependencies]
