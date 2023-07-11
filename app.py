@@ -57,6 +57,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/hello")
+async def root():
+    return {"message": "Hello World"}
 
 def generate_plantuml(text: str, output_file: str):
     # escape newlines for PlantUML
@@ -112,7 +115,7 @@ async def generate_diagram_endpoint(
 
 
 @app.get("/logo.png")
-async def plugin_logo():
+def plugin_logo():
     return FileResponse("./.well-known/logo.png", media_type="image/png")
 
 
