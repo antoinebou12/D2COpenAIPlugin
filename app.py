@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import re
+from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
 from plantuml.plantumlapi import PlantUML
 
 app = FastAPI(
@@ -32,7 +33,9 @@ origins = [
     "https://chat.openai.com",
     "https://openai-uml-plugin.vercel.app",
     "http://localhost:5003",
+    "http://127.0.0.1:5003",
     "http://0.0.0.0:5003",
+    "devtools"
 ]
 
 app.add_middleware(
@@ -52,15 +55,21 @@ class DiagramRequest(BaseModel):
 async def generate_diagram_endpoint(diagram: DiagramRequest):
     logger.info(f"A request was made to generate a {diagram.lang} diagram.")
     try:
-        if diagram.lang != "plantuml":
+        if diagram.lang == "plantuml":
+            content, url = generate_plantuml(diagram.diagram_text)
+            return {"url": url}
+        elif diagram.lang in ["mermaid", "mermaidjs"]:
+            diagram_state = generate_diagram_state(diagram.diagram_text)
+            url = generate_mermaid_live_editor_url(diagram_state)
+            return {"url": url}
+        else:
             raise HTTPException(status_code=422, detail=f"Unknown diagram type: {diagram.lang}")
-        content, url = generate_plantuml(diagram.diagram_text)
-        return {"url": url}
     except HTTPException as e:
         raise e
     except Exception as e:
         logger.error(f"Error generating {diagram.lang} diagram: {str(e)}")
         return {"error": "An error occurred while generating the diagram."}
+
 
 @app.get("/logo.png")
 def plugin_logo():
