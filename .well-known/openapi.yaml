@@ -1,10 +1,8 @@
 openapi: 3.0.2
 info:
-  title: GPT Plugin Diagrams
+  title: Diagram To Code
   version: 1.1.1
 servers:
-  - url: http://localhost:5003
-    description: Local development server
   - url: https://openai-uml-plugin.vercel.app
     description: Production server
 paths:
