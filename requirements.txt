@@ -5,14 +5,8 @@ httpx==0.22.0
 aiofiles
 PyYAML
 typer
-httpx
 beautifulsoup4
-httpx
 rich
-docker
 pytest
 pre-commit
 sphinx
-mkdocs
-mkdocstrings
-mkdocs-material

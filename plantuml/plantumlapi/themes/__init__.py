@@ -244,4 +244,6 @@ class PlantUML:
             content, url = self.process(plantuml_text)
         except PlantUMLHTTPError as e:
             raise PlantUMLHTTPError(e, "") from e
+        # with open(outfile, 'wb') as out:
+        #     out.write(content)
         return content, url

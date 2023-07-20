@@ -8,8 +8,10 @@ from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import re
-from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
-from plantuml.plantumlapi import PlantUML
+
+from .plantuml.plantumlapi import PlantUML
+
+from .mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
 
 app = FastAPI(
     title="GPT Plugin Diagrams",
@@ -21,7 +23,6 @@ app = FastAPI(
 )
 
 app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
-app.mount("/public", StaticFiles(directory="public"), name="public")
 
 # Add logging configuration
 logging.basicConfig(
@@ -53,14 +54,26 @@ class DiagramRequest(BaseModel):
 
 @app.post("/generate_diagram")
 async def generate_diagram_endpoint(diagram: DiagramRequest):
+    if not diagram.diagram_text:
+        raise HTTPException(status_code=422, detail="No diagram text provided.")
+    if not diagram.lang:
+        raise HTTPException(status_code=422, detail="No diagram language provided.")
+    if not diagram.diagram_type:
+        raise HTTPException(status_code=422, detail="No diagram type provided.")
     logger.info(f"A request was made to generate a {diagram.lang} diagram.")
     try:
         if diagram.lang == "plantuml":
-            content, url = generate_plantuml(diagram.diagram_text)
+            plantuml = PlantUML(url="https://www.plantuml.com/plantuml/dpng")
+            content, url = plantuml.generate_image_from_string(diagram.diagram_text)
+            if url is None:
+                raise HTTPException(status_code=400, detail="Invalid PlantUML syntax.")
+            print(f"Content: {content}")
             return {"url": url}
         elif diagram.lang in ["mermaid", "mermaidjs"]:
             diagram_state = generate_diagram_state(diagram.diagram_text)
             url = generate_mermaid_live_editor_url(diagram_state)
+            if url is None:
+                raise HTTPException(status_code=400, detail="Invalid Mermaid syntax.")
             return {"url": url}
         else:
             raise HTTPException(status_code=422, detail=f"Unknown diagram type: {diagram.lang}")
