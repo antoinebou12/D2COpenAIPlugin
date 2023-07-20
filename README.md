@@ -1,8 +1,8 @@
-# UMLOpenAIPlugin
+# OpenAID2CPlugin
 
 > **Join the [ChatGPT plugins waitlist here](https://openai.com/waitlist/plugins)!**
 
-UMLOpenAIPlugin is a plugin for ChatGPT that enables users to generate diagrams using PlantUML or Mermaid. This plugin enhances the capabilities of ChatGPT by providing a seamless way to create diverse and creative diagrams.
+OpenAID2CPlugin is a plugin for ChatGPT that enables users to generate diagrams using PlantUML or Mermaid. This plugin enhances the capabilities of ChatGPT by providing a seamless way to create diverse and creative diagrams.
 
 ![https://github.com/antoinebou12/UMLOpenAIPlugin/docs/DiagramGeneratorPlugin.gif](https://raw.githubusercontent.com/antoinebou12/UMLOpenAIPlugin/main/docs/DiagramGeneratorPlugin.gif)
 
