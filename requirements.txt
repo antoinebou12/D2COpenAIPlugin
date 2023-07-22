@@ -10,5 +10,4 @@ rich
 pytest
 pre-commit
 sphinx
-asyncio
 playwright

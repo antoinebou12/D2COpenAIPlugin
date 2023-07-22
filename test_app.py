@@ -21,8 +21,8 @@ def test_logo_endpoint():
 def test_generate_diagram_endpoint():
     response = client.post("/generate_diagram", json={
         "lang": "plantuml",
-        "diagram_type": "sequence",
-        "diagram_text": "@startuml\nAlice -> Bob: Authentication Request\n@enduml"
+        "type": "sequence",
+        "code": "@startuml\nAlice -> Bob: Authentication Request\n@enduml"
     })
     assert response.status_code == 200
     assert "url" in response.json()
@@ -30,8 +30,17 @@ def test_generate_diagram_endpoint():
 def test_generate_mermaid_diagram_endpoint():
     response = client.post("/generate_diagram", json={
         "lang": "mermaid",
-        "diagram_type": "sequence",
-        "diagram_text": "sequenceDiagram\n    Alice->>Bob: Hello Bob, how are you?\n    Bob-->>Alice: Not too bad, thanks!"
+        "type": "sequence",
+        "code": "sequenceDiagram\n    Alice->>Bob: Hello Bob, how are you?\n    Bob-->>Alice: Not too bad, thanks!"
+    })
+    assert response.status_code == 200
+    assert "url" in response.json()
+
+def test_generate_d2_diagram_endpoint():
+    response = client.post("/generate_diagram", json={
+        "lang": "d2",
+        "type": "class",
+        "code": "class Test{}"
     })
     assert response.status_code == 200
     assert "url" in response.json()
@@ -39,23 +48,23 @@ def test_generate_mermaid_diagram_endpoint():
 def test_generate_diagram_endpoint_with_empty_text():
     response = client.post("/generate_diagram", json={
         "lang": "plantuml",
-        "diagram_type": "sequence",
-        "diagram_text": ""
+        "type": "sequence",
+        "code": ""
     })
     assert response.status_code == 422  # Unprocessable Entity
 
 def test_generate_diagram_endpoint_with_no_lang():
     response = client.post("/generate_diagram", json={
-        "diagram_type": "sequence",
-        "diagram_text": "@startuml\nAlice -> Bob: Authentication Request\n@enduml"
+        "type": "sequence",
+        "code": "@startuml\nAlice -> Bob: Authentication Request\n@enduml"
     })
     assert response.status_code == 422  # Unprocessable Entity
 
 def test_generate_diagram_endpoint_with_unsupported_lang():
     response = client.post("/generate_diagram", json={
         "lang": "unsupported",
-        "diagram_type": "sequence",
-        "diagram_text": "@startuml\nAlice -> Bob: Authentication Request\n@enduml"
+        "type": "sequence",
+        "code": "@startuml\nAlice -> Bob: Authentication Request\n@enduml"
     })
     assert response.status_code == 422  # Unprocessable Entity
 
