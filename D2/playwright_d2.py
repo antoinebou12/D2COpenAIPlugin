@@ -22,7 +22,7 @@ async def run_playwright(code: str, layout: str, theme: str):
     logger.info(f"Running Playwright with code: {code}")
     async with async_playwright() as p:
         logger.info("Running Playwright")
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(args=["--disable-gpu", "--single-process"])
         page = await browser.new_page()
         await page.goto('https://play.d2lang.com')
         logger.info("Page loaded")
