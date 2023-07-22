@@ -9,8 +9,6 @@ from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-import re
-import asyncio
 
 from plantuml.plantumlapi import PlantUML
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url

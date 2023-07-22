@@ -1,6 +1,5 @@
 import logging
 from playwright.async_api import async_playwright
-import asyncio
 from urllib.parse import urlparse, parse_qs
 from urllib.parse import urlparse, parse_qs
 
@@ -39,7 +38,7 @@ async def run_playwright(code: str, layout: str, theme: str):
         await compile_button.click()
 
         # Wait for the page to compile
-        await asyncio.sleep(0.1)
+        await page.wait_for_selector('#theme-btn')
 
         # Select theme
         if theme != "Neutral default":
