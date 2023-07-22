@@ -21,7 +21,7 @@ async def run_playwright(code: str, layout: str, theme: str):
     logger.info(f"Running Playwright with code: {code}")
     async with async_playwright() as p:
         logger.info("Running Playwright")
-        browser = await p.chromium.launch(args=["--disable-gpu", "--single-process"])
+        browser = await p.firefox.launch(args=["--disable-gpu", "--single-process"])
         page = await browser.new_page()
         await page.goto('https://play.d2lang.com')
         logger.info("Page loaded")
@@ -49,6 +49,7 @@ async def run_playwright(code: str, layout: str, theme: str):
             theme = "0"
 
         # Get the URL of the page after compilation
+        await page.wait_for_load_state("domcontentloaded")
         new_url = page.url
 
         # Use the create_render_url function to generate the render URL

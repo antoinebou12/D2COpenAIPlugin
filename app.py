@@ -1,10 +1,12 @@
 import logging
+import os
+import subprocess
 from pydantic import BaseModel, validator, ValidationError
-from fastapi import FastAPI, Request, HTTPException, Response
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from D2.js2py import js2py
+from D2.run_d2 import run_go_script
 
 from plantuml.plantumlapi import PlantUML
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
@@ -104,7 +106,7 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
             logger.info("Generating D2 diagram.")
             if not diagram.theme:
                 diagram.theme = "Neutral default"
-            url, content = await js2py(diagram.code, diagram.type, diagram.theme)
+            url, content = await run_go_script(str(diagram.code), str(diagram.type), str(diagram.theme))
             return {"url": url, "content": content}
         elif diagram.lang == "graphviz":
             raise HTTPException(status_code=422, detail="Graphviz diagrams are not yet supported.")
@@ -138,8 +140,26 @@ async def openapi_spec_json():
     with open("./.well-known/openapi.json") as f:
         return f.read()
 
+def install_playwright():
+    env = os.environ.copy()
+    env["PLAYWRIGHT_BROWSERS_PATH"] = "~/pw-browsers"
+    process = subprocess.Popen(['python', '-m', 'playwright', 'install', 'firefox'], env=env, stdout=subprocess.PIPE)
+
+    while True:
+        output = process.stdout.readline()
+        if output == b'' and process.poll() is not None:
+            break
+        if output:
+            logger.info(output.strip())
+    rc = process.poll()
+
+    if rc != 0:
+        logger.error(f"Playwright installation failed with return code: {rc}")
+
 def main():
     import uvicorn
+    logger.info("Installing Playwright.")
+    install_playwright()
     logger.info("Starting server.")
     uvicorn.run(app, host="localhost", port=5003)
 

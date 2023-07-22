@@ -85,6 +85,8 @@ for keyword in sorted(reserved_keywords):
 
 print("Compression dictionary:", compression_dict)
 
+compression_dict = "-><---<->3danimatedboldborder-radiusclassclassesconstraintdescdirectiondouble-borderfillfill-patternfilledfontfont-colorfont-sizegrid-columnsgrid-gapgrid-rowsheighthorizontal-gapiconitaliclabellayersleftlinkmultiplenearopacityscenariosshadowshapesource-arrowheadstepsstrokestroke-dashstroke-widthstyletarget-arrowheadtext-transformtooltiptopunderlinevarsvertical-gapwidth"
+
 class Layout(Enum):
     DAGRE = 'dagre'
     ELK = 'elk'
