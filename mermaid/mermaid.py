@@ -105,9 +105,9 @@ def generate_diagram_state(diagram_text, theme="dark", updateEditor=True, autoSy
         "updateDiagram": updateDiagram
     }
 
-def generate_mermaid_live_editor_url(diagram_state: dict, serde: str = "pako") -> str:
+def generate_mermaid_live_editor_url(diagram_state: dict, serde: str = "pako") -> tuple[str, str]:
     serialized_state = serialize_state(diagram_state, serde)
-    return f"https://mermaid.ink/svg/{serialized_state}"
+    return f"https://mermaid.ink/svg/{serialized_state}", diagram_state["code"]
 
 
 if __name__ == "__main__":

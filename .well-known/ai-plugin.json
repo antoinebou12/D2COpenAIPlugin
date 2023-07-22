@@ -1,9 +1,9 @@
 {
     "schema_version": "v1",
-    "name_for_human": "Diagram as Code",
-    "name_for_model": "Diagram as Code",
-    "description_for_human": "Plugin for generating diagrams using PlantUML and Mermaid.",
-    "description_for_model": "Plugin for generating diagrams using PlantUML and Mermaid.",
+    "name_for_human": "Diagram2Code",
+    "name_for_model": "Diagram2Code",
+    "description_for_human": "Plugin for generating diagrams using PlantUML, Mermaid, D2.",
+    "description_for_model": "Plugin for generating diagrams using PlantUML, Mermaid, D2.",
     "auth": {
         "type": "none"
     },

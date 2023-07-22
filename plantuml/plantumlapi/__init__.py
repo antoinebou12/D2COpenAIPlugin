@@ -245,3 +245,20 @@ class PlantUML:
         except PlantUMLHTTPError as e:
             raise PlantUMLHTTPError(e, "") from e
         return content, url
+
+
+def generate_plantuml(text: str):
+    logger.info(f"Generating PlantUML diagram from text: {text}")
+    text = text.replace("\n", " \n ").replace("\\n", f"{chr(13)}{chr(10)}")
+    text = text.replace("@startuml", f"{chr(13)}{chr(10)}@startuml{chr(13)}{chr(10)}")
+    text = text.replace("@enduml", f"{chr(13)}{chr(10)}@enduml{chr(13)}{chr(10)}")
+    logger.info(f"Text after replacing newlines: {text}")
+    try:
+        plantuml = PlantUML(url="https://www.plantuml.com/plantuml/dpng")
+        content, url = plantuml.generate_image_from_string(text)
+        # with open(output_file, "wb") as f:
+        #     f.write(content)
+        return content, url
+    except Exception as e:
+        logger.error(f"Error generating PlantUML diagram: {str(e)}")
+        return None, None, None

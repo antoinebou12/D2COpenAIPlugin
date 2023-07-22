@@ -1,5 +1,5 @@
 {
-  "devCommand": "uvicorn app:app --host 0.0.0.0 --port 5003",
+  "devCommand": "pip install -r requirements.txt && playwright install && uvicorn app:app --host 0.0.0.0 --port 5003",
   "version": 2,
   "builds": [
     {

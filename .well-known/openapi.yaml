@@ -5,6 +5,8 @@ info:
 servers:
   - url: https://openai-uml-plugin.vercel.app
     description: Production server
+  - url: http://localhost:5003
+    description: Production server
 paths:
   /.well-known/ai-plugin.json:
     get:
@@ -30,17 +32,22 @@ paths:
                   type: string
                   title: Diagram Language
                   description: The language of the diagram like plantuml, mermaid, etc.
-                diagram_type:
+                type:
                   type: string
                   title: Diagram Type
                   description: The type of the diagram like class, sequence, etc.
-                diagram_text:
+                code:
                   type: string
-                  title: Diagram Text
+                  title: Diagram Code
+                  description: The code of the diagram.
+                theme:
+                  type: string
+                  title: Theme
+                  description: The theme of the diagram.
               required:
                 - lang
-                - diagram_type
-                - diagram_text
+                - type
+                - code
       responses:
         "200":
           content:
