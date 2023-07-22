@@ -1,19 +1,13 @@
-import asyncio
-import base64
 import logging
-import os
-import subprocess
-import playwright
 from pydantic import BaseModel, validator, ValidationError
 from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from D2.js2py import js2py
 
 from plantuml.plantumlapi import PlantUML
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
-from D2.playwright_d2 import run_playwright
-from html import escape
 
 app = FastAPI(
     title="GPT Plugin Diagrams",
@@ -110,7 +104,7 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
             logger.info("Generating D2 diagram.")
             if not diagram.theme:
                 diagram.theme = "Neutral default"
-            url, content = await run_playwright(diagram.code, "elk", diagram.theme)
+            url, content = await js2py(diagram.code, diagram.type, diagram.theme)
             return {"url": url, "content": content}
         elif diagram.lang == "graphviz":
             raise HTTPException(status_code=422, detail="Graphviz diagrams are not yet supported.")
@@ -121,21 +115,6 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
     except Exception as e:
         logger.error(f"Error generating {diagram.lang} diagram: {str(e)}")
         return {"error": "An error occurred while generating the diagram."}
-
-
-@app.get("/check_playwright")
-async def check_playwright():
-    logger.info("Checking Playwright installation.")
-    install_playwright()
-    try:
-        async with playwright.async_api.async_playwright() as p:
-            browser = await p.chromium.launch(args=["--disable-gpu", "--single-process"])
-            browser.close()
-            logger.info("Playwright installed.")
-            return {"installed": True}
-    except Exception as e:
-        logger.error(f"Playwright not installed: {str(e)}")
-        return {"installed": False}
 
 @app.get("/logo.png")
 def plugin_logo():
@@ -159,27 +138,8 @@ async def openapi_spec_json():
     with open("./.well-known/openapi.json") as f:
         return f.read()
 
-async def install_playwright():
-    env = os.environ.copy()
-    env["PLAYWRIGHT_BROWSERS_PATH"] = "~/pw-browsers"
-    process = await asyncio.create_subprocess_exec('python', '-m', 'playwright', 'install-deps', 'chromium', env=env, stdout=asyncio.subprocess.PIPE)
-
-    while True:
-        output = await process.stdout.readline()
-        if output == b'' and process.returncode is not None:
-            break
-        if output:
-            logger.info(output.strip())
-    rc = process.returncode
-
-    if rc != 0:
-        logger.error(f"Playwright installation failed with return code: {rc}")
-
-
 def main():
     import uvicorn
-    logger.info("Installing Playwright.")
-    install_playwright()
     logger.info("Starting server.")
     uvicorn.run(app, host="localhost", port=5003)
 

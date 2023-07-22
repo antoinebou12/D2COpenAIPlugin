@@ -1,6 +1,7 @@
 from urllib.parse import parse_qs, urlparse
 from fastapi.testclient import TestClient
 import pytest
+from D2.js2py import js2py
 from D2.playwright_d2 import run_playwright
 from mermaid.mermaid import PakoSerde, deserialize_state, generate_diagram_state, generate_mermaid_live_editor_url, serialize_state
 
@@ -157,3 +158,9 @@ async def test_run_playwright():
     assert query_params["theme"][0] == "0"
     assert query_params["sketch"][0] == "0"
     assert query_params["script"][0] != ""
+
+@pytest.mark.asyncio
+async def test_js2py():
+    # Test with valid inputs
+    result = await js2py('your code here', 'elk', 'Neutral gray')
+    assert result["message"] == "Script ran successfully"

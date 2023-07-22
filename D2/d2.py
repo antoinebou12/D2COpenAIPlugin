@@ -18,6 +18,8 @@ simple_reserved_keywords = {
     "direction",
     "top",
     "left",
+    "right",
+    "bottom",
     "grid-rows",
     "grid-columns",
     "grid-gap",
@@ -78,6 +80,8 @@ reserved_keywords = set(
 compression_dict = "-><--<->"
 for keyword in sorted(reserved_keywords):
     compression_dict += keyword
+
+#-><--<->3danimatedboldborder-radiusbottomclassclassesconstraintdescdirectiondouble-borderfillfill-patternfilledfontfont-colorfont-sizegrid-columnsgrid-gapgrid-rowsheighthorizontal-gapiconitaliclabellayersleftlinevarslinkmultiplenearopacityrightscenariosshadowshapesource-arrowheadstepsstrokestroke-dashstroke-widthstyletarget-arrowheadtext-transformtooltiptopunderlinevertical-gapwidth
 
 print("Compression dictionary:", compression_dict)
 
