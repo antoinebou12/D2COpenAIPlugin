@@ -12,3 +12,4 @@ pre-commit
 sphinx
 playwright==1.11.1
 pytest-asyncio
+asyncio

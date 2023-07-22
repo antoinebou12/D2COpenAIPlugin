@@ -1,8 +1,7 @@
 import logging
-import time
 from playwright.async_api import async_playwright
 from urllib.parse import urlparse, parse_qs
-from urllib.parse import urlparse, parse_qs
+import asyncio
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -10,13 +9,13 @@ logger = logging.getLogger(__name__)
 async def select_theme(page, theme_name: str):
     # Assuming that you click a button to open the theme menu
     logger.info("About to click theme button")
-    theme_button = page.locator('#theme-btn')
+    theme_button = await page.query_selector('#theme-btn')
     await theme_button.click()
 
     # Now select the theme from the menu
     logger.info("About to select theme")
 
-    theme_option = page.locator(f' text={theme_name}')
+    theme_option = await page.query_selector(f' text={theme_name}')
     await theme_option.click()
 
 async def run_playwright(code: str, layout: str, theme: str):
@@ -30,13 +29,14 @@ async def run_playwright(code: str, layout: str, theme: str):
 
         # Find the code editor element and write your code into it
         logger.info("About to write code")
-        time.sleep(1)
-        code_editor = page.locator('#editor-main > div > div.overflow-guard > textarea')
+        await page.wait_for_selector('#editor-main > div > div.overflow-guard > textarea')
+        code_editor = await page.query_selector('#editor-main > div > div.overflow-guard > textarea')
         await code_editor.fill(code)
 
         # Click the compile button
         logger.info("About to click compile button")
-        compile_button = page.locator('#compile-btn')
+        await page.wait_for_selector('#compile-btn')
+        compile_button = await page.query_selector('#compile-btn')
         await compile_button.click()
 
         # Wait for the page to compile
@@ -74,6 +74,10 @@ async def create_render_url(page_url, layout):
 
     return f"https://api.d2lang.com/render/svg?script={script}&layout={layout}&theme={theme}&sketch=0"
 
+async def main():
+    # Use the function
+    await run_playwright('your code here', 'elk', 'Neutral gray')
+
 if __name__ == "__main__":
     # Use the function
-    run_playwright('your code here', 'elk', 'Neutral gray')
+    asyncio.run(main())
