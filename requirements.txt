@@ -10,5 +10,5 @@ rich
 pytest
 pre-commit
 sphinx
-playwright==1.4.0
+playwright==1.11.0
 pytest-asyncio
