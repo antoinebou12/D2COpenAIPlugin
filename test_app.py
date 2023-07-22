@@ -1,12 +1,8 @@
-from urllib.parse import parse_qs, urlparse
 from fastapi.testclient import TestClient
 import pytest
-from D2.js2py import js2py
-from D2.playwright_d2 import run_playwright
+from D2.run_d2 import run_go_script
 from mermaid.mermaid import PakoSerde, deserialize_state, generate_diagram_state, generate_mermaid_live_editor_url, serialize_state
-
-from plantuml.plantumlapi import PlantUML, PlantUMLHTTPError
-from playwright.async_api import async_playwright
+from plantuml import PlantUML, PlantUMLHTTPError
 
 from .app import app
 
@@ -45,10 +41,11 @@ def test_generate_mermaid_diagram_endpoint():
 
 def test_generate_d2_diagram_endpoint():
     response = client.post("/generate_diagram", json={
-        "lang": "D2",
+        "lang": "d2lang",
         "type": "class",
         "code": "class Test{}"
     })
+    assert response.json() == {"error": "An error occurred while generating the diagram."}
     assert response.status_code == 200
     assert "url" in response.json()
 
@@ -87,9 +84,10 @@ def test_generate_image_from_string():
     # Test with valid PlantUML text
     valid_text = """@startuml \n Alice -> Bob: Authentication Request \n @enduml"""
     try:
-        url, content = plantuml.generate_image_from_string(valid_text)
+        url, content, playground = plantuml.generate_image_from_string(valid_text)
         assert url is not None
         assert content is not None
+        assert playground is not None
     except PlantUMLHTTPError:
         pytest.fail("PlantUMLHTTPError was raised with valid PlantUML text")
 
@@ -97,8 +95,6 @@ def test_generate_image_from_string():
     invalid_text = "This is not valid PlantUML text"
     with pytest.raises(PlantUMLHTTPError):
         plantuml.generate_image_from_string(invalid_text)
-
-
 
 def test_pako_serde():
     serde = PakoSerde()
@@ -118,12 +114,24 @@ def test_generate_diagram_state():
 def test_generate_mermaid_live_editor_url():
     diagram_text = "graph TD; A-->B;"
     state = generate_diagram_state(diagram_text)
-    url, code = generate_mermaid_live_editor_url(state)
+    url, code, playground = generate_mermaid_live_editor_url(state)
     assert url.startswith("https://mermaid.ink/svg/")
     assert code == diagram_text
+    assert playground.startswith("https://mermaid.live/edit#")
 
 def test_serialize_deserialize_state():
     state = {"key": "value"}
     serialized = serialize_state(state)
     deserialized = deserialize_state(serialized)
     assert state == deserialized
+
+@pytest.mark.asyncio
+async def test_run_go_script():
+    # Define some test input
+    test_input = "test input"
+
+    # Call the function with the test input
+    url, content, playground = await run_go_script(test_input)
+    assert url is not None
+    assert content is not None
+    assert playground is not None

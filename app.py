@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from D2.run_d2 import run_go_script
 
-from plantuml.plantumlapi import PlantUML
+from plantuml import PlantUML
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
 
 app = FastAPI(
@@ -49,11 +49,11 @@ class DiagramRequest(BaseModel):
     lang: str
     type: str
     code: str
-    theme: str = None
+    theme: str = ""
 
     @validator('lang')
     def validate_lang(cls, v):
-        valid_langs = ["plantuml", "mermaid", "D2", "graphviz"]
+        valid_langs = ["plantuml", "mermaid", "mermaidjs", "d2lang", "D2", "d2", "terrastruct", "graphviz"]
         if v not in valid_langs:
             raise ValidationError(f"Invalid diagram language: {v}")
         return v
@@ -87,27 +87,27 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
                 diagram.theme = "blueprint"
             logger.info("Generating PlantUML diagram.")
             plantuml = PlantUML(url="https://www.plantuml.com/plantuml/dpng")
-            url, content = plantuml.generate_image_from_string(str(diagram.code))
+            url, content, playground = plantuml.generate_image_from_string(str(diagram.code))
             print(url)
             print(content)
             if url is None:
                 raise HTTPException(status_code=400, detail="Invalid PlantUML syntax.")
-            return {"url": url, "content": content}
-        elif diagram.lang in ["mermaid"]:
+            return {"url": url, "content": content, "playground": playground}
+        elif diagram.lang in ["mermaid", "mermaidjs"]:
             if not diagram.theme:
                 diagram.theme = "dark"
             logger.info("Generating Mermaid diagram.")
             diagram_state = generate_diagram_state(str(diagram.code), str(diagram.theme))
-            url, content = generate_mermaid_live_editor_url(diagram_state)
+            url, content, playground = generate_mermaid_live_editor_url(diagram_state)
             if url is None:
                 raise HTTPException(status_code=400, detail="Invalid Mermaid syntax.")
-            return {"url": url, "content": content}
-        elif diagram.lang in ["D2"]:
+            return {"url": url, "content": content, "playground": playground}
+        elif diagram.lang in ["d2lang", "D2", "d2", "terrastruct"]:
             logger.info("Generating D2 diagram.")
             if not diagram.theme:
                 diagram.theme = "Neutral default"
-            url, content = await run_go_script(str(diagram.code), str(diagram.type), str(diagram.theme))
-            return {"url": url, "content": content}
+            url, content, playground = await run_go_script(str(diagram.code))
+            return {"url": url, "content": content, "playground": playground}
         elif diagram.lang == "graphviz":
             raise HTTPException(status_code=422, detail="Graphviz diagrams are not yet supported.")
         else:
@@ -140,26 +140,8 @@ async def openapi_spec_json():
     with open("./.well-known/openapi.json") as f:
         return f.read()
 
-def install_playwright():
-    env = os.environ.copy()
-    env["PLAYWRIGHT_BROWSERS_PATH"] = "~/pw-browsers"
-    process = subprocess.Popen(['python', '-m', 'playwright', 'install', 'firefox'], env=env, stdout=subprocess.PIPE)
-
-    while True:
-        output = process.stdout.readline()
-        if output == b'' and process.poll() is not None:
-            break
-        if output:
-            logger.info(output.strip())
-    rc = process.poll()
-
-    if rc != 0:
-        logger.error(f"Playwright installation failed with return code: {rc}")
-
 def main():
     import uvicorn
-    logger.info("Installing Playwright.")
-    install_playwright()
     logger.info("Starting server.")
     uvicorn.run(app, host="localhost", port=5003)
 

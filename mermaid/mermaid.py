@@ -2,7 +2,6 @@ import zlib
 import base64
 import json
 from urllib.parse import quote, unquote
-import difflib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -70,12 +69,6 @@ class PakoSerde(Serde):
         decompressed_data += decompress.flush()
         return decompressed_data
 
-def print_diff(original, decoded):
-    d = difflib.Differ()
-    diff = d.compare(original.splitlines(), decoded.splitlines())
-    print('\n'.join(diff))
-
-
 SERDES = {
     "base64": Base64Serde(),
     "pako": PakoSerde(),
@@ -110,7 +103,7 @@ def generate_diagram_state(diagram_text, theme="dark", updateEditor=True, autoSy
 
 def generate_mermaid_live_editor_url(diagram_state: dict, serde: str = "pako") -> tuple[str, str]:
     serialized_state = serialize_state(diagram_state, serde)
-    return f"https://mermaid.ink/svg/{serialized_state}", diagram_state["code"]
+    return f"https://mermaid.ink/svg/{serialized_state}", diagram_state["code"], "https://mermaid.live/edit#{serialized_state}"
 
 
 if __name__ == "__main__":
