@@ -11,6 +11,9 @@ from io import open
 from typing import Optional, Tuple
 from zlib import compress
 import httpx
+import logging
+
+logger = logging.getLogger(__name__)
 
 """
 Exceptions for PlantUML.
@@ -139,7 +142,7 @@ class PlantUML:
             response.raise_for_status()
         except httpx.HTTPError as e:
             raise PlantUMLHTTPError(e, "") from e
-        return response.content, url
+        return url, plantuml_text
 
     def process_file(self, filename, outfile=None, errorfile=None, directory=''):
         """Take a filename of a file containing plantuml text and processes
@@ -241,10 +244,10 @@ class PlantUML:
         """
 
         try:
-            content, url = self.process(plantuml_text)
+            url, content = self.process(plantuml_text)
         except PlantUMLHTTPError as e:
             raise PlantUMLHTTPError(e, "") from e
-        return content, url
+        return url, content
 
 
 def generate_plantuml(text: str):
@@ -255,10 +258,10 @@ def generate_plantuml(text: str):
     logger.info(f"Text after replacing newlines: {text}")
     try:
         plantuml = PlantUML(url="https://www.plantuml.com/plantuml/dpng")
-        content, url = plantuml.generate_image_from_string(text)
+        url, content = plantuml.generate_image_from_string(text)
         # with open(output_file, "wb") as f:
         #     f.write(content)
-        return content, url
+        return url, content
     except Exception as e:
         logger.error(f"Error generating PlantUML diagram: {str(e)}")
         return None, None, None

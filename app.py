@@ -1,5 +1,6 @@
+import base64
 import logging
-from pydantic import BaseModel
+from pydantic import BaseModel, validator, ValidationError
 from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from plantuml.plantumlapi import PlantUML
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
 from D2.playwright_d2 import run_playwright
+from html import escape
 
 app = FastAPI(
     title="GPT Plugin Diagrams",
@@ -49,36 +51,58 @@ class DiagramRequest(BaseModel):
     code: str
     theme: str = None
 
+    @validator('lang')
+    def validate_lang(cls, v):
+        valid_langs = ["plantuml", "mermaid", "D2", "graphviz"]
+        if v not in valid_langs:
+            raise ValidationError(f"Invalid diagram language: {v}")
+        return v
+
+    @validator('type')
+    def validate_type(cls, v):
+        valid_types = ["class", "sequence", "activity", "component", "state", "object", "usecase", "mindmap", "git"]
+        if v not in valid_types:
+            logger.error(f"Invalid diagram type: {v}")
+        return v
+
+    @validator('code')
+    def validate_code(cls, v):
+        if len(v) > 100000:
+            raise ValidationError("Diagram code is too long.")
+        return v
+
 @app.post("/generate_diagram")
 async def generate_diagram_endpoint(diagram: DiagramRequest):
     logger.info(f"Received request to generate a {diagram.lang} diagram.")
     if not diagram.code:
-        raise HTTPException(status_code=422, detail="No diagram text provided.")
+        raise HTTPException(status_code=422, detail="No diagram code provided.")
     if not diagram.lang:
         raise HTTPException(status_code=422, detail="No diagram language provided.")
     if not diagram.type:
         raise HTTPException(status_code=422, detail="No diagram type provided.")
     logger.info(f"A request was made to generate a {diagram.lang} diagram.")
     try:
-        if diagram.lang == "plantuml":
+        if diagram.lang in ["plantuml"]:
             if not diagram.theme:
                 diagram.theme = "blueprint"
             logger.info("Generating PlantUML diagram.")
             plantuml = PlantUML(url="https://www.plantuml.com/plantuml/dpng")
-            content, url = plantuml.generate_image_from_string(diagram.code)
+            url, content = plantuml.generate_image_from_string(str(diagram.code))
+            print(url)
+            print(content)
             if url is None:
                 raise HTTPException(status_code=400, detail="Invalid PlantUML syntax.")
             return {"url": url, "content": content}
-        elif diagram.lang in ["mermaid", "mermaidjs"]:
+        elif diagram.lang in ["mermaid"]:
             if not diagram.theme:
                 diagram.theme = "dark"
             logger.info("Generating Mermaid diagram.")
-            diagram_state = generate_diagram_state(diagram.code)
-            url = generate_mermaid_live_editor_url(diagram_state)
+            diagram_state = generate_diagram_state(str(diagram.code), str(diagram.theme))
+            url, content = generate_mermaid_live_editor_url(diagram_state)
             if url is None:
                 raise HTTPException(status_code=400, detail="Invalid Mermaid syntax.")
             return {"url": url, "content": content}
-        elif diagram.lang in ["D2", "d2", "terrastruct", "Declarative Diagramming", "Text to Diagram"]:
+        elif diagram.lang in ["D2"]:
             logger.info("Generating D2 diagram.")
             if not diagram.theme:
                 diagram.theme = "Neutral default"

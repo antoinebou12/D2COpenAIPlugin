@@ -11,3 +11,4 @@ pytest
 pre-commit
 sphinx
 playwright
+pytest-asyncio

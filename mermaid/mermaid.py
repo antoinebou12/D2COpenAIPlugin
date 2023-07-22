@@ -3,6 +3,9 @@ import base64
 import json
 from urllib.parse import quote, unquote
 import difflib
+import logging
+
+logger = logging.getLogger(__name__)
 
 def js_encode_uri_component(data):
     return quote(data, safe='~()*!.\'')
