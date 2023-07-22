@@ -1,4 +1,5 @@
 import logging
+import time
 from playwright.async_api import async_playwright
 from urllib.parse import urlparse, parse_qs
 from urllib.parse import urlparse, parse_qs
@@ -29,6 +30,7 @@ async def run_playwright(code: str, layout: str, theme: str):
 
         # Find the code editor element and write your code into it
         logger.info("About to write code")
+        time.sleep(1)
         code_editor = page.locator('#editor-main > div > div.overflow-guard > textarea')
         await code_editor.fill(code)
 
