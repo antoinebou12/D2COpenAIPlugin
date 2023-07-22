@@ -53,13 +53,13 @@ async def run_playwright(code: str, layout: str, theme: str):
 
         # Use the create_render_url function to generate the render URL
         logger.info("About to create render URL")
-        render_url = await create_render_url(new_url, layout)
+        render_url = create_render_url(new_url, layout)
 
         await browser.close()
 
         return render_url, code
 
-async def create_render_url(page_url, layout):
+def create_render_url(page_url, layout):
     # Extract the script and theme from the URL
     logger.info("About to parse URL")
     parsed_url = urlparse(page_url)
