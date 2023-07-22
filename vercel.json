@@ -11,6 +11,11 @@
       }
     }
   ],
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "docs/**, test/**, *test.py, .github/**,requirements.txt, SECURITY.md, .pre-commit.config.yaml, renovate.json, .gitignore, .gitattributes, .git"
+    }
+  },
   "routes": [
     {
       "src": "/(.*)",
