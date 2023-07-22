@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from D2.run_d2 import run_go_script
 
-from plantuml.plantumlapi import PlantUML
+from plantuml import PlantUML
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
 
 app = FastAPI(

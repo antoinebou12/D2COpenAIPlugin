@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 import pytest
 from D2.run_d2 import run_go_script
 from mermaid.mermaid import PakoSerde, deserialize_state, generate_diagram_state, generate_mermaid_live_editor_url, serialize_state
-from plantuml.plantumlapi import PlantUML, PlantUMLHTTPError
+from plantuml import PlantUML, PlantUMLHTTPError
 
 from .app import app
 

@@ -2,7 +2,6 @@ import zlib
 import base64
 import json
 from urllib.parse import quote, unquote
-import difflib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -69,12 +68,6 @@ class PakoSerde(Serde):
         decompressed_data = decompress.decompress(data)
         decompressed_data += decompress.flush()
         return decompressed_data
-
-def print_diff(original, decoded):
-    d = difflib.Differ()
-    diff = d.compare(original.splitlines(), decoded.splitlines())
-    print('\n'.join(diff))
-
 
 SERDES = {
     "base64": Base64Serde(),
