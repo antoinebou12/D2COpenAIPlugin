@@ -1,5 +1,7 @@
 import base64
 import logging
+import subprocess
+import playwright
 from pydantic import BaseModel, validator, ValidationError
 from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
@@ -141,8 +143,26 @@ async def openapi_spec_json():
     with open("./.well-known/openapi.json") as f:
         return f.read()
 
+def install_playwright():
+    process = subprocess.Popen(['python', '-m', 'playwright', 'install'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    while True:
+        output = process.stdout.readline()
+        if output == b'' and process.poll() is not None:
+            break
+        if output:
+            logger.info(output.strip())
+    rc = process.poll()
+
+    if rc != 0:
+        logger.error(f"Playwright installation failed with return code: {rc}")
+
+
+
 def main():
     import uvicorn
+    logger.info("Installing Playwright.")
+    install_playwright()
     logger.info("Starting server.")
     uvicorn.run(app, host="localhost", port=5003)
 
