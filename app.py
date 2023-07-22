@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import logging
 import os
@@ -158,23 +159,21 @@ async def openapi_spec_json():
     with open("./.well-known/openapi.json") as f:
         return f.read()
 
-def install_playwright():
+async def install_playwright():
     env = os.environ.copy()
     env["PLAYWRIGHT_BROWSERS_PATH"] = "~/pw-browsers"
-    process = subprocess.Popen(['python', '-m', 'playwright', 'install', 'chromium'], env=env, stdout=subprocess.PIPE)
+    process = await asyncio.create_subprocess_exec('python', '-m', 'playwright', 'install', 'chromium', env=env, stdout=asyncio.subprocess.PIPE)
 
     while True:
-        output = process.stdout.readline()
-        if output == b'' and process.poll() is not None:
+        output = await process.stdout.readline()
+        if output == b'' and process.returncode is not None:
             break
         if output:
             logger.info(output.strip())
-    rc = process.poll()
+    rc = process.returncode
 
     if rc != 0:
         logger.error(f"Playwright installation failed with return code: {rc}")
-
-
 
 
 def main():

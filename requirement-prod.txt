@@ -1,0 +1,10 @@
+fastapi==0.68.2
+uvicorn==0.15.0
+diagrams==0.20.0
+httpx==0.22.0
+aiofiles
+PyYAML
+typer
+beautifulsoup4
+rich
+playwright
