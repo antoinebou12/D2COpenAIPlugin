@@ -7,4 +7,4 @@ PyYAML
 typer
 beautifulsoup4
 rich
-playwright
+playwright==1.11.1
