@@ -121,6 +121,18 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
         return {"error": "An error occurred while generating the diagram."}
 
 
+@app.get("check_playwright")
+async def check_playwright():
+    logger.info("Checking Playwright installation.")
+    install_playwright()
+    try:
+        async with playwright.async_api.async_playwright() as p:
+            logger.info("Playwright installed.")
+            return {"installed": True}
+    except Exception as e:
+        logger.error(f"Playwright not installed: {str(e)}")
+        return {"installed": False}
+
 @app.get("/logo.png")
 def plugin_logo():
     logger.info("Received request for plugin logo.")
