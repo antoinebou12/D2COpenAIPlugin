@@ -1,7 +1,6 @@
 import logging
 from playwright.async_api import async_playwright
 from urllib.parse import urlparse, parse_qs
-import asyncio
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -73,11 +72,3 @@ async def create_render_url(page_url, layout):
     logger.info(f"Script: {script}, theme: {theme}")
 
     return f"https://api.d2lang.com/render/svg?script={script}&layout={layout}&theme={theme}&sketch=0"
-
-async def main():
-    # Use the function
-    await run_playwright('your code here', 'elk', 'Neutral gray')
-
-if __name__ == "__main__":
-    # Use the function
-    asyncio.run(main())
