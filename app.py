@@ -121,7 +121,7 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
         return {"error": "An error occurred while generating the diagram."}
 
 
-@app.get("check_playwright")
+@app.get("/check_playwright")
 async def check_playwright():
     logger.info("Checking Playwright installation.")
     install_playwright()
