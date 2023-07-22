@@ -1,5 +1,6 @@
 import base64
 import logging
+import os
 import subprocess
 import playwright
 from pydantic import BaseModel, validator, ValidationError
@@ -126,10 +127,6 @@ async def check_playwright():
     logger.info("Checking Playwright installation.")
     install_playwright()
     try:
-        # du -hs ./Library/Caches/ms-playwright/*
-        subprocess.run(["du", "-hs", "./Library/Caches/ms-playwright/*"])
-        
-
         async with playwright.async_api.async_playwright() as p:
             browser = await p.chromium.launch(args=["--disable-gpu", "--single-process"])
             browser.close()
@@ -162,7 +159,9 @@ async def openapi_spec_json():
         return f.read()
 
 def install_playwright():
-    process = subprocess.Popen(['PLAYWRIGHT_BROWSERS_PATH=$HOME/pw-browsers' ,'python', '-m', 'playwright', 'install', 'chromium'], stdout=subprocess.PIPE)
+    env = os.environ.copy()
+    env["PLAYWRIGHT_BROWSERS_PATH"] = "~/pw-browsers"
+    process = subprocess.Popen(['python', '-m', 'playwright', 'install', 'chromium'], env=env, stdout=subprocess.PIPE)
 
     while True:
         output = process.stdout.readline()
@@ -174,6 +173,7 @@ def install_playwright():
 
     if rc != 0:
         logger.error(f"Playwright installation failed with return code: {rc}")
+
 
 
 
