@@ -97,6 +97,25 @@
                 "summary": "Generate Diagram Endpoint"
             }
         },
+        "check_playwright": {
+            "get": {
+                "operationId": "check_playwright",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "Response Check Playwright",
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "description": "Successful Response"
+                    }
+                },
+                "summary": "Check Playwright"
+            }
+        },
         "/logo.png": {
             "get": {
                 "operationId": "plugin_logo",
