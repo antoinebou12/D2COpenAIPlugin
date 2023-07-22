@@ -108,6 +108,7 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
             logger.info("Generating D2 diagram.")
             if not diagram.theme:
                 diagram.theme = "Neutral default"
+            install_playwright()
             url, content = await run_playwright(diagram.code, "elk", diagram.theme)
             return {"url": url, "content": content}
         elif diagram.lang == "graphviz":
