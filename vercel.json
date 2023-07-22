@@ -1,12 +1,12 @@
 {
-  "devCommand": " pip install -r requirements.txt && pip install --upgrade pip && PLAYWRIGHT_BROWSERS_PATH=~/pw-browsers python -m playwright install chromium && uvicorn app:app --host 0.0.0.0 --port 5003",
+  "devCommand": " pip install -r requirements.txt && pip install --upgrade pip && PLAYWRIGHT_BROWSERS_PATH=~/pw-browsers python -m playwright install-deps chromium && uvicorn app:app --host 0.0.0.0 --port 5003",
   "version": 2,
   "builds": [
     {
       "src": "app.py",
       "use": "@vercel/python",
       "config": {
-        "buildCommand": "pip install -r requirements-prod.txt && pip install --upgrade pip && python -m playwright install chromium && uvicorn app:app --host 0.0.0.0 --port 5003",
+        "buildCommand": "pip install -r requirements-prod.txt && pip install --upgrade pip && python -m playwright install-deps chromium && uvicorn app:app --host 0.0.0.0 --port 5003",
         "debug": true
       }
     }
