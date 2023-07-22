@@ -1,12 +1,8 @@
-from urllib.parse import parse_qs, urlparse
 from fastapi.testclient import TestClient
 import pytest
-from D2.js2py import js2py
-from D2.playwright_d2 import run_playwright
+from D2.run_d2 import run_go_script
 from mermaid.mermaid import PakoSerde, deserialize_state, generate_diagram_state, generate_mermaid_live_editor_url, serialize_state
-
 from plantuml.plantumlapi import PlantUML, PlantUMLHTTPError
-from playwright.async_api import async_playwright
 
 from .app import app
 
@@ -127,3 +123,11 @@ def test_serialize_deserialize_state():
     serialized = serialize_state(state)
     deserialized = deserialize_state(serialized)
     assert state == deserialized
+
+@pytest.mark.asyncio
+async def test_run_go_script():
+    # Define some test input
+    test_input = "test input"
+
+    # Call the function with the test input
+    await run_go_script(test_input)

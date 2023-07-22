@@ -106,7 +106,7 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
             logger.info("Generating D2 diagram.")
             if not diagram.theme:
                 diagram.theme = "Neutral default"
-            url, content = await run_go_script(str(diagram.code), str(diagram.type), str(diagram.theme))
+            url, content = await run_go_script(str(diagram.code))
             return {"url": url, "content": content}
         elif diagram.lang == "graphviz":
             raise HTTPException(status_code=422, detail="Graphviz diagrams are not yet supported.")
