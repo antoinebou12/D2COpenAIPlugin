@@ -103,7 +103,7 @@ def generate_diagram_state(diagram_text, theme="dark", updateEditor=True, autoSy
 
 def generate_mermaid_live_editor_url(diagram_state: dict, serde: str = "pako") -> tuple[str, str]:
     serialized_state = serialize_state(diagram_state, serde)
-    return f"https://mermaid.ink/svg/{serialized_state}", diagram_state["code"], "https://mermaid.live/edit#{serialized_state}"
+    return f"https://mermaid.ink/svg/{serialized_state}", diagram_state["code"], f"https://mermaid.live/edit#{serialized_state}"
 
 
 if __name__ == "__main__":
