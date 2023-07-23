@@ -34,7 +34,7 @@ Before using the plugin, make sure to have the following prerequisites installed
 To install the required packages for this plugin, run the following command:
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
 To run the plugin, enter the following command:
