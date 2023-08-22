@@ -21,8 +21,8 @@ Before using the plugin, make sure to have the following prerequisites installed
 - uvicorn
 
 1. Install Python 3.10, if not already installed.
-2. Clone the repository: `git clone https://github.com/antoinebou12/UMLOpenAIPlugin.git`
-3. Navigate to the cloned repository directory: `cd /path/to/UMLOpenAIPlugin`
+2. Clone the repository: `git clone https://github.com/antoinebou12/D2COpenAIPlugin.git`
+3. Navigate to the cloned repository directory: `cd /path/to/D2COpenAIPlugin`
 4. Install poetry: `pip install poetry`
 5. Create a new virtual environment with Python 3.10: `poetry env use python3.10`
 6. Activate the virtual environment: `poetry shell`
