@@ -6,6 +6,17 @@ servers:
   - url: https://openai-uml-plugin.vercel.app
     description: Production server
 paths:
+  /.well-known/privacy.txt:
+    get:
+      summary: Privacy Policy
+      operationId: privacy_policy
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            text/plain:
+              schema:
+                type: string
   /.well-known/ai-plugin.json:
     get:
       operationId: plugin_manifest
@@ -27,7 +38,7 @@ paths:
               type: object
               properties:
                 lang:
-                  type: string6
+                  type: string
                   title: Diagram Language
                   description: The language of the diagram like plantuml, mermaid, etc.
                 type:
