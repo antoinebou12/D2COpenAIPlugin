@@ -140,6 +140,10 @@ async def openapi_spec_json():
     with open("./.well-known/openapi.json") as f:
         return f.read()
 
+@app.get("/.well-known/privacy.txt", response_class=PlainTextResponse)
+async def privacy_policy():
+    return FileResponse("./.well-known/privacy.txt")
+
 def main():
     import uvicorn
     logger.info("Starting server.")
