@@ -1,0 +1,54 @@
+Privacy Policy for Diagram To Code API
+Effective date: March 31, 2024
+
+Welcome to the Diagram To Code API, provided by Antoine Boucher. We are committed to protecting the privacy and security of our users' data. This Privacy Policy outlines the types of information we collect, how it is used, and the steps we take to safeguard your information.
+
+**Information Collection and Use**
+
+**Information You Provide to Us**
+
+The Diagram To Code API collects information you provide directly to us when you generate diagrams, including:
+
+- **Diagram Language**: The programming language or notation used for diagram generation.
+- **Diagram Type**: The category of diagram you wish to generate (e.g., class, sequence).
+- **Diagram Code**: The actual code or notation that describes the diagram.
+- **Theme**: Optional parameter for the visual theme of the generated diagram.
+
+**Automated Data Collection**
+
+We may automatically collect certain information about your use of our API, such as usage statistics and traffic data. This information is used for maintenance purposes and to improve the functionality of our API.
+
+**Use of Information**
+
+The information we collect is used to:
+
+- Provide, maintain, and improve the Diagram To Code API.
+- Analyze how users interact with our API to further enhance user experience.
+- Detect, prevent, and address technical issues.
+
+**Sharing of Information**
+
+We do not share your personal information with third parties except:
+
+- To comply with legal obligations.
+- To protect and defend the rights or property of Antoine Boucher.
+- To prevent or investigate possible wrongdoing in connection with the API.
+
+**Third-Party Services**
+
+In order to facilitate the generation of diagrams and to provide the functionality of the Diagram To Code API, we may share your diagram data, including Diagram Language, Diagram Type, Diagram Code, and optional Theme, with third-party services such as Mermaid, PlantUML, D2, and others that specialize in diagram generation and visualization.
+
+**How We Share Your Information with Third-Party Services**
+
+- **Diagram Generation**: Your diagram data is sent to third-party services only for the purpose of generating the requested diagrams. This may include rendering images, creating vector graphics, or performing other computational tasks necessary to produce the output based on your specifications.
+- **Data Processing**: These services may process your data to generate the diagrams but are not permitted to use your data for any other purposes. We engage with third-party services that adhere to similar or more stringent data protection practices and agree to protect your data.
+
+**Data Security**
+
+We implement a variety of security measures to maintain the safety of your personal information and diagram data. This includes measures to protect data shared with third-party services for diagram generation. However, as no method of transmission over the Internet or method of electronic storage is 100% secure, we cannot guarantee its absolute security.
+
+**Changes to This Privacy Policy**
+
+We may update our Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, and other factors. We will notify you of any changes by posting the new Privacy Policy on this page. We will indicate at the top of the Privacy Policy when it was last updated. Your continued use of the Diagram To Code API after any modification to this Privacy Policy will constitute your acceptance of such modification.
+
+This comprehensive privacy policy now includes essential details about data collection, use, sharing, third-party service interactions, and security measures, reflecting the update as of March 31, 2024.
