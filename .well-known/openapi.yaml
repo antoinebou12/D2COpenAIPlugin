@@ -5,8 +5,6 @@ info:
 servers:
   - url: https://openai-uml-plugin.vercel.app
     description: Production server
-  - url: http://localhost:5003
-    description: Production server
 paths:
   /.well-known/ai-plugin.json:
     get:
@@ -29,7 +27,7 @@ paths:
               type: object
               properties:
                 lang:
-                  type: string
+                  type: string6
                   title: Diagram Language
                   description: The language of the diagram like plantuml, mermaid, etc.
                 type:
@@ -43,47 +41,55 @@ paths:
                 theme:
                   type: string
                   title: Theme
-                  description: The theme of the diagram.
+                  description: Optional theme for the diagram.
               required:
                 - lang
                 - type
                 - code
       responses:
         "200":
+          description: Successful diagram generation
           content:
             application/json:
               schema:
                 title: Response Generate Diagram Endpoint
                 type: object
-          description: Successful Response
+                properties:
+                  url:
+                    type: string
+                    description: URL to the generated diagram.
+                  message:
+                    type: string
+                    description: A message about the diagram generation, e.g., success or failure reason.
+                required:
+                  - url
         "422":
+          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/HTTPValidationError"
-          description: Validation Error
       summary: Generate Diagram Endpoint
   /logo.png:
     get:
       operationId: plugin_logo
       responses:
         "200":
+          description: Successful Response
           content:
             application/json:
               schema: {}
-          description: Successful Response
       summary: Plugin Logo
   /openapi.yaml:
     get:
       operationId: openapi_spec
       responses:
         "200":
+          description: Successful Response
           content:
             application/json:
               schema: {}
-          description: Successful Response
       summary: OpenAPI Spec
-
 components:
   schemas:
     HTTPValidationError:
