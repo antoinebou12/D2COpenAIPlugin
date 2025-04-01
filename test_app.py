@@ -80,7 +80,7 @@ def test_generate_diagram_endpoint_with_unsupported_lang():
 def test_openapi_spec():
     response = client.get("/openapi.yaml")
     assert response.status_code == 200
-    assert "openapi: 3.0.2" in response.text
+    assert "openapi: 3.1.0" in response.text
 
 
 def test_generate_image_from_string():
