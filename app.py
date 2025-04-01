@@ -10,6 +10,7 @@ from D2.run_d2 import run_go_script
 
 from plantuml import PlantUML
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
+from kroki.kroki import generate_diagram as generate_kroki_diagram, LANGUAGE_OUTPUT_SUPPORT as KROKI_LANGUAGE_SUPPORT
 
 app = FastAPI(
     title="GPT Plugin Diagrams",
@@ -53,7 +54,13 @@ class DiagramRequest(BaseModel):
 
     @validator('lang')
     def validate_lang(cls, v):
-        valid_langs = ["plantuml", "mermaid", "mermaidjs", "d2lang", "D2", "d2", "terrastruct", "graphviz"]
+        valid_langs = [
+            "plantuml", "mermaid", "mermaidjs", "d2lang", "D2", "d2", "terrastruct", "graphviz",
+            "blockdiag", "bpmn", "bytefield", "seqdiag", "actdiag", "nwdiag", 
+            "packetdiag", "rackdiag", "c4plantuml", "dbml", "ditaa", "erd", 
+            "excalidraw", "nomnoml", "pikchr", "structurizr", "svgbob", 
+            "symbolator", "tikz", "umlet", "vega", "vegalite", "wavedrom", "wireviz"
+        ]
         if v not in valid_langs:
             raise ValidationError(f"Invalid diagram language: {v}")
         return v
@@ -108,8 +115,11 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
                 diagram.theme = "Neutral default"
             url, content, playground = await run_go_script(str(diagram.code))
             return {"url": url, "content": content, "playground": playground}
-        elif diagram.lang == "graphviz":
-            raise HTTPException(status_code=422, detail="Graphviz diagrams are not yet supported.")
+        elif diagram.lang in KROKI_LANGUAGE_SUPPORT:
+            logger.info(f"Generating Kroki diagram ({diagram.lang}).")
+            output_format = "svg"
+            url, content, playground = await generate_kroki_diagram(diagram.lang, str(diagram.code), output_format)
+            return {"url": url, "content": content, "playground": playground}
         else:
             raise HTTPException(status_code=422, detail=f"Unknown diagram type: {diagram.lang}")
     except HTTPException as e:
