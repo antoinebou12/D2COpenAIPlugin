@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # API Server
+  diagram-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+    environment:
+      - PORT=5003
+      - HOST=0.0.0.0
+      - USE_LOCAL_PLANTUML=true
+      - USE_LOCAL_KROKI=false
+    command: python app.py
+    networks:
+      - diagram-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5003/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # MCP Server
+  diagram-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+    environment:
+      - MCP_OUTPUT_DIR=/app/output
+      - USE_LOCAL_PLANTUML=true
+      - PLANTUML_SERVER=http://plantuml-server:8080
+    # No port mapping needed as MCP uses stdio
+    networks:
+      - diagram-network
+    depends_on:
+      - plantuml-server
+
+  # PlantUML Server for better performance
+  plantuml-server:
+    image: plantuml/plantuml-server:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - diagram-network
+    environment:
+      - PLANTUML_LIMIT_SIZE=8192
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # Optional: Kroki Server (if you want local diagram rendering for all types)
+  kroki:
+    image: yuzutech/kroki:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - KROKI_BLOCKDIAG_HOST=blockdiag
+      - KROKI_MERMAID_HOST=mermaid
+    networks:
+      - diagram-network
+    depends_on:
+      - blockdiag
+      - mermaid
+
+  # Kroki companion services
+  blockdiag:
+    image: yuzutech/kroki-blockdiag:latest
+    networks:
+      - diagram-network
+  
+  mermaid:
+    image: yuzutech/kroki-mermaid:latest
+    networks:
+      - diagram-network
+
+networks:
+  diagram-network:
+    driver: bridge
+
+volumes:
+  output-data:
+  logs-data:

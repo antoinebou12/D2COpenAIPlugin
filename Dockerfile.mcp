@@ -1,0 +1,44 @@
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    golang \
+    graphviz \
+    curl \
+    ca-certificates \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first (for better caching)
+COPY requirements.txt .
+
+# Create mcp-requirements.txt if it doesn't exist
+RUN echo "fastmcp>=0.1.0" > mcp-requirements.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r mcp-requirements.txt
+
+# Create necessary directories
+RUN mkdir -p output logs mcp/server
+
+# Copy application code
+COPY . .
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV D2_PATH=/usr/local/bin/d2
+ENV MCP_OUTPUT_DIR=/app/output
+ENV PLANTUML_SERVER=http://plantuml-server:8080
+
+# Install D2 for diagram generation
+RUN curl -fsSL https://d2lang.com/install.sh | sh -s --
+
+# Make script executable
+RUN chmod +x docker-run.sh
+
+# Run MCP server
+ENTRYPOINT ["python", "mcp_server.py"]

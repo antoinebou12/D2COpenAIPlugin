@@ -1,0 +1,49 @@
+name: uml-mcp-server
+version: 1.0.0
+description: UML diagram generation tool for Claude and other MCP clients
+author: Antoine Boucher
+license: MIT
+repository: https://github.com/antoinebou12/D2COpenAIPlugin
+
+install:
+  # Install dependencies
+  - type: command
+    command: pip install -r requirements.txt
+  - type: command
+    command: pip install -r mcp/mcp-requirements.txt
+    
+  # Install as MCP server for Claude Desktop
+  - type: template
+    source: config/claude_desktop_config.json
+    target: ${user.home}/.config/claude-desktop/mcp.json
+    replace: false
+    
+  # Install as MCP server for Cursor
+  - type: template
+    source: config/cursor_config.json
+    target_platforms:
+      windows: ${user.home}/AppData/Roaming/Cursor/config.json
+      macos: ${user.home}/Library/Application Support/Cursor/config.json
+      linux: ${user.home}/.config/Cursor/config.json
+    replace: false
+    
+run:
+  command: python mcp_server.py
+  
+hooks:
+  post_install:
+    - type: message
+      message: |
+        UML-MCP-Server has been installed successfully!
+        
+        To use with Claude Desktop:
+          - Open Claude Desktop
+          - Click on the Tools icon in the bottom toolbar
+          - Select "UML-MCP-Server" from the list of tools
+          
+        To use with Cursor:
+          - Open Cursor
+          - Create a new chat
+          - Click on the "UML-MCP-Server" icon in the bottom toolbar
+          
+        Generated diagrams will be saved to the output directory.

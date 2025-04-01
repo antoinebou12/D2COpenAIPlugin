@@ -1,0 +1,3 @@
+"""
+Core MCP server functionality
+"""

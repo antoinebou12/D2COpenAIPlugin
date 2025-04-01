@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "UML-MCP-Server": {
+      "command": "python",
+      "args": [
+        "${projectRoot}/mcp_server.py"
+      ],
+      "output_dir": "${projectRoot}/output"
+    }
+  }
+}
