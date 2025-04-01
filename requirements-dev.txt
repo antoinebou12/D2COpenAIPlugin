@@ -1,5 +1,5 @@
 fastapi==0.68.2
-uvicorn==0.15.0
+uvicorn==0.34.0
 httpx==0.23.0
 pytest
 pre-commit
