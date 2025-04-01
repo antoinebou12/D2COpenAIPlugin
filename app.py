@@ -15,7 +15,7 @@ from kroki.kroki import generate_diagram as generate_kroki_diagram, LANGUAGE_OUT
 app = FastAPI(
     title="GPT Plugin Diagrams",
     description="This plugin generates diagrams from text using GPT-4.",
-    version="1.1.1",
+    version="1.1.2",
     docs_url="/",
     redoc_url=None,
     servers=[{"url": "https://openai-uml-plugin.vercel.app"}, {"url": "http://localhost:5003"}],
@@ -67,7 +67,7 @@ class DiagramRequest(BaseModel):
 
     @validator('type')
     def validate_type(cls, v):
-        valid_types = ["class", "sequence", "activity", "component", "state", "object", "usecase", "mindmap", "git"]
+        valid_types = ["class", "sequence", "activity", "component", "state", "object", "usecase", "mindmap", "git", "gantt"]
         if v not in valid_types:
             logger.error(f"Invalid diagram type: {v}")
         return v
