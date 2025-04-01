@@ -45,9 +45,14 @@ def test_generate_d2_diagram_endpoint():
         "type": "class",
         "code": "class Test{}"
     })
-    assert response.json() == {"error": "An error occurred while generating the diagram."}
     assert response.status_code == 200
-    assert "url" in response.json()
+    response_json = response.json()
+    assert "url" in response_json
+    assert "content" in response_json
+    assert "playground" in response_json
+    assert response_json["content"] == "class Test{}"
+    assert response_json["url"].startswith("https://api.d2lang.com/render/svg")
+    assert response_json["playground"].startswith("https://play.d2lang.com/?script=")
 
 def test_generate_diagram_endpoint_with_empty_text():
     response = client.post("/generate_diagram", json={
