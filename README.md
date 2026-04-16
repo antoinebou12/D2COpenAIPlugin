@@ -1,6 +1,7 @@
 # D2COpenAIPlugin (Diagram2Code)
 
 [![CI](https://github.com/antoinebou12/D2COpenAIPlugin/actions/workflows/CI.yml/badge.svg)](https://github.com/antoinebou12/D2COpenAIPlugin/actions/workflows/CI.yml)
+[![GitHub stars](https://img.shields.io/github/stars/antoinebou12/D2COpenAIPlugin?style=flat&logo=github)](https://github.com/antoinebou12/D2COpenAIPlugin/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/Framework-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
@@ -148,3 +149,9 @@ The app is configured for [Vercel](https://vercel.com/) with `@vercel/python` in
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=antoinebou12/D2COpenAIPlugin&type=Date)](https://star-history.com/#antoinebou12/D2COpenAIPlugin&Date)
