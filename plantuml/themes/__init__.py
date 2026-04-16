@@ -101,7 +101,11 @@ class PlantUML:
             self.auth_type = auth_type
 
         self.auth = basic_auth or form_auth or None
-        self.client = httpx.Client(**http_opts, proxies=http_opts.get('proxies'))
+        client_opts = dict(http_opts)
+        proxies = client_opts.pop("proxies", None)
+        if proxies is not None:
+            client_opts["proxy"] = proxies
+        self.client = httpx.Client(**client_opts)
 
         if auth_type == 'basic_auth':
             self.client.auth = (username := self.auth['username'], self.auth['password'])
@@ -117,7 +121,9 @@ class PlantUML:
                 raise PlantUMLConnectionError(e) from e
             if response.status_code != 200:
                 raise PlantUMLHTTPError(response, "Login failed. Check your form_auth settings.")
-            self.request_opts['Cookie'] = response.cookies.get_dict()
+            self.request_opts["Cookie"] = "; ".join(
+                f"{name}={value}" for name, value in response.cookies.items()
+            )
 
     def get_url(self, plantuml_text):
         """Return the server URL for the image.

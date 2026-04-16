@@ -96,7 +96,11 @@ class Kroki:
             **http_opts: Additional options to pass to the httpx client.
         """
         self.base_url = base_url.rstrip("/")
-        self.client = httpx.Client(**http_opts)
+        client_opts = dict(http_opts)
+        proxies = client_opts.pop("proxies", None)
+        if proxies is not None:
+            client_opts["proxy"] = proxies
+        self.client = httpx.Client(**client_opts)
     
     def get_url(self, diagram_type: str, diagram_text: str, output_format: str = "svg") -> str:
         """

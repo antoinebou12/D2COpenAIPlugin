@@ -1,7 +1,7 @@
 import logging
 import os
 import subprocess
-from pydantic import BaseModel, validator, ValidationError
+from pydantic import BaseModel, field_validator
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
@@ -52,8 +52,9 @@ class DiagramRequest(BaseModel):
     code: str
     theme: str = ""
 
-    @validator('lang')
-    def validate_lang(cls, v):
+    @field_validator("lang")
+    @classmethod
+    def validate_lang(cls, v: str) -> str:
         valid_langs = [
             "plantuml", "mermaid", "mermaidjs", "d2lang", "D2", "d2", "terrastruct", "graphviz",
             "blockdiag", "bpmn", "bytefield", "seqdiag", "actdiag", "nwdiag", 
@@ -62,20 +63,22 @@ class DiagramRequest(BaseModel):
             "symbolator", "tikz", "umlet", "vega", "vegalite", "wavedrom", "wireviz"
         ]
         if v not in valid_langs:
-            raise ValidationError(f"Invalid diagram language: {v}")
+            raise ValueError(f"Invalid diagram language: {v}")
         return v
 
-    @validator('type')
-    def validate_type(cls, v):
+    @field_validator("type")
+    @classmethod
+    def validate_type(cls, v: str) -> str:
         valid_types = ["class", "sequence", "activity", "component", "state", "object", "usecase", "mindmap", "git", "gantt"]
         if v not in valid_types:
             logger.error(f"Invalid diagram type: {v}")
         return v
 
-    @validator('code')
-    def validate_code(cls, v):
+    @field_validator("code")
+    @classmethod
+    def validate_code(cls, v: str) -> str:
         if len(v) > 100000:
-            raise ValidationError("Diagram code is too long.")
+            raise ValueError("Diagram code is too long.")
         return v
 
 @app.post("/generate_diagram")

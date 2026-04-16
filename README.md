@@ -1,5 +1,10 @@
 # D2COpenAIPlugin
 
+[![CI](https://github.com/antoinebou12/D2COpenAIPlugin/actions/workflows/CI.yml/badge.svg)](https://github.com/antoinebou12/D2COpenAIPlugin/actions/workflows/CI.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/Framework-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
+
 > **Join the [ChatGPT plugins waitlist here](https://openai.com/waitlist/plugins)!**
 > 
 > [my GTPs with the plugin](https://chat.openai.com/g/g-B1Bfoq5qh-uml-diagram-creation-expert)
