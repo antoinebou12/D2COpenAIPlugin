@@ -41,10 +41,6 @@ def test_generate_mermaid_diagram_endpoint():
     assert response.status_code == 200
     assert "url" in response.json()
 
-@pytest.mark.skipif(
-    sys.platform == "win32",
-    reason="D2/main is a Linux ELF binary; not runnable on Windows CI/dev",
-)
 def test_generate_d2_diagram_endpoint():
     response = client.post("/generate_diagram", json={
         "lang": "d2lang",
@@ -57,7 +53,7 @@ def test_generate_d2_diagram_endpoint():
     assert "content" in response_json
     assert "playground" in response_json
     assert response_json["content"] == "class Test{}"
-    assert response_json["url"].startswith("https://api.d2lang.com/render/svg")
+    assert response_json["url"].startswith("https://kroki.io/d2/svg/")
     assert response_json["playground"].startswith("https://play.d2lang.com/?script=")
 
 def test_generate_diagram_endpoint_with_empty_text():

@@ -6,8 +6,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from D2.run_d2 import run_go_script
-
 from plantuml import PlantUML
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
 from kroki.kroki import generate_diagram as generate_kroki_diagram, LANGUAGE_OUTPUT_SUPPORT as KROKI_LANGUAGE_SUPPORT
@@ -113,15 +111,11 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
                 raise HTTPException(status_code=400, detail="Invalid Mermaid syntax.")
             return {"url": url, "content": content, "playground": playground}
         elif diagram.lang in ["d2lang", "D2", "d2", "terrastruct"]:
-            logger.info("Generating D2 diagram.")
-            if not diagram.theme:
-                diagram.theme = "Neutral default"
-            d2_result = await run_go_script(str(diagram.code))
-            if d2_result is None:
-                raise HTTPException(
-                    status_code=503, detail="D2 diagram generation failed."
-                )
-            url, content, playground = d2_result
+            logger.info(f"Generating D2 diagram via Kroki ({diagram.lang}).")
+            output_format = "svg"
+            url, content, playground = await generate_kroki_diagram(
+                "d2", str(diagram.code), output_format
+            )
             return {"url": url, "content": content, "playground": playground}
         elif diagram.lang in KROKI_LANGUAGE_SUPPORT:
             logger.info(f"Generating Kroki diagram ({diagram.lang}).")
