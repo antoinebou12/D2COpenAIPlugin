@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import asyncio
 import os
 
 logging.basicConfig(level=logging.INFO)
@@ -23,3 +22,4 @@ async def run_go_script(input_data: str):
         return f"https://api.d2lang.com/render/svg?script={stdout.decode().strip()}&layout={layout}&theme={theme}&sketch=0", input_data, f"https://play.d2lang.com/?script={stdout.decode().strip()}&layout={layout}&theme={theme}"
     except Exception as e:
         logger.error(f"Go script execution failed with error: {str(e)}")
+        return None

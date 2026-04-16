@@ -1,3 +1,5 @@
+import sys
+
 from fastapi.testclient import TestClient
 import pytest
 from D2.run_d2 import run_go_script
@@ -39,6 +41,10 @@ def test_generate_mermaid_diagram_endpoint():
     assert response.status_code == 200
     assert "url" in response.json()
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="D2/main is a Linux ELF binary; not runnable on Windows CI/dev",
+)
 def test_generate_d2_diagram_endpoint():
     response = client.post("/generate_diagram", json={
         "lang": "d2lang",
@@ -130,6 +136,10 @@ def test_serialize_deserialize_state():
     deserialized = deserialize_state(serialized)
     assert state == deserialized
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="D2/main is a Linux ELF binary; not runnable on Windows CI/dev",
+)
 @pytest.mark.asyncio
 async def test_run_go_script():
     # Define some test input

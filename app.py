@@ -116,7 +116,12 @@ async def generate_diagram_endpoint(diagram: DiagramRequest):
             logger.info("Generating D2 diagram.")
             if not diagram.theme:
                 diagram.theme = "Neutral default"
-            url, content, playground = await run_go_script(str(diagram.code))
+            d2_result = await run_go_script(str(diagram.code))
+            if d2_result is None:
+                raise HTTPException(
+                    status_code=503, detail="D2 diagram generation failed."
+                )
+            url, content, playground = d2_result
             return {"url": url, "content": content, "playground": playground}
         elif diagram.lang in KROKI_LANGUAGE_SUPPORT:
             logger.info(f"Generating Kroki diagram ({diagram.lang}).")
