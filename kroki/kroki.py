@@ -373,7 +373,10 @@ def generate_kroki_url(diagram_type: str, diagram_source: str, output_format: st
         URL for the diagram
     """
     kroki = Kroki()
-    return kroki.get_url(diagram_type, diagram_source, output_format)
+    try:
+        return kroki.get_url(diagram_type, diagram_source, output_format)
+    finally:
+        kroki.client.close()
 
 
 async def generate_diagram(diagram_type: str, diagram_source: str, output_format: str = "svg") -> Tuple[str, str, str]:
@@ -388,8 +391,8 @@ async def generate_diagram(diagram_type: str, diagram_source: str, output_format
     Returns:
         Tuple of (url, content, playground_url)
     """
+    kroki = Kroki()
     try:
-        kroki = Kroki()
         url = kroki.get_url(diagram_type, diagram_source, output_format)
         playground = kroki.get_playground_url(diagram_type, diagram_source)
         
@@ -400,3 +403,5 @@ async def generate_diagram(diagram_type: str, diagram_source: str, output_format
     except Exception as e:
         logger.error(f"Error generating {diagram_type} diagram: {str(e)}")
         raise
+    finally:
+        kroki.client.close()
