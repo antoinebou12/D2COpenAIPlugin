@@ -1,165 +1,213 @@
+"""Diagram2Code HTTP Actions API and Streamable HTTP MCP server."""
+
 import logging
 import os
-import subprocess
-from pydantic import BaseModel, field_validator
+from contextlib import asynccontextmanager
+from pathlib import Path
+from urllib.parse import urlsplit
+
+import anyio
+import yaml
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from plantuml import PlantUML
+from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
+from mcp.server.mcpserver import MCPServer
+from mcp.server.transport_security import TransportSecuritySettings
+from mcp.types import ToolAnnotations
+from pydantic import BaseModel, Field, field_validator
+
+from kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
+from kroki.kroki import generate_diagram as generate_kroki_diagram
 from mermaid.mermaid import generate_diagram_state, generate_mermaid_live_editor_url
-from kroki.kroki import generate_diagram as generate_kroki_diagram, LANGUAGE_OUTPUT_SUPPORT as KROKI_LANGUAGE_SUPPORT
+from plantuml import PlantUML, PlantUMLHTTPError
+from uml_backend import backend_url, generate_with_uml_mcp
 
-app = FastAPI(
-    title="GPT Plugin Diagrams",
-    description="This plugin generates diagrams from text using GPT-4.",
-    version="1.1.2",
-    docs_url="/",
-    redoc_url=None,
-    servers=[{"url": "https://openai-uml-plugin.vercel.app"}, {"url": "http://localhost:5003"}],
-)
-
-app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
-
-# Add logging configuration
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+ROOT = Path(__file__).resolve().parent
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://openai-uml-plugin.vercel.app")
+MCP_HOSTS = [
+    "localhost",
+    "localhost:*",
+    "127.0.0.1",
+    "127.0.0.1:*",
+    urlsplit(PUBLIC_BASE_URL).netloc,
+]
+MCP_HOSTS.extend(
+    filter(None, [os.getenv("VERCEL_URL"), os.getenv("VERCEL_PROJECT_PRODUCTION_URL")])
 )
 logger = logging.getLogger(__name__)
-
-origins = [
-    "https://chat.openai.com",
-    "https://openai-uml-plugin.vercel.app",
-    "http://localhost:5003",
-    "http://127.0.0.1:5003",
-    "http://0.0.0.0:5003",
-    "devtools"
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
-    allow_headers=["*"],
+ALIASES = {"mermaidjs": "mermaid", "d2lang": "d2", "terrastruct": "d2"}
+mcp = MCPServer("Diagram2Code", instructions="Generate diagram links from source text.")
+mcp_app = mcp.streamable_http_app(
+    streamable_http_path="/",
+    stateless_http=True,
+    json_response=True,
+    transport_security=TransportSecuritySettings(
+        allowed_hosts=MCP_HOSTS,
+        allowed_origins=[
+            PUBLIC_BASE_URL,
+            "https://chatgpt.com",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+        ],
+    ),
 )
 
+
+@asynccontextmanager
+async def lifespan(app):
+    async with mcp.session_manager.run():
+        yield
+
+
+app = FastAPI(
+    title="Diagram2Code",
+    description="Diagram rendering API for Custom GPT Actions and MCP apps, with an optional UML-MCP backend.",
+    version="2.0.0",
+    docs_url="/",
+    redoc_url=None,
+    lifespan=lifespan,
+    servers=[{"url": os.getenv("PUBLIC_BASE_URL", "https://openai-uml-plugin.vercel.app")}],
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://chatgpt.com",
+        "https://chat.openai.com",
+        "http://localhost:5003",
+        "http://127.0.0.1:5003",
+    ],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Accept", "MCP-Protocol-Version", "Mcp-Session-Id"],
+    expose_headers=["Mcp-Session-Id"],
+)
+
+
 class DiagramRequest(BaseModel):
-    lang: str
-    type: str
-    code: str
-    theme: str = ""
+    lang: str = Field(
+        description="Source language: plantuml, mermaid, d2, graphviz, or another supported Kroki language."
+    )
+    type: str = Field(
+        min_length=1,
+        max_length=100,
+        description="Diagram type, such as class, sequence or flowchart.",
+    )
+    code: str = Field(min_length=1, max_length=100000, description="Diagram source text.")
+    theme: str = Field(default="", max_length=100)
 
     @field_validator("lang")
     @classmethod
-    def validate_lang(cls, v: str) -> str:
-        valid_langs = [
-            "plantuml", "mermaid", "mermaidjs", "d2lang", "D2", "d2", "terrastruct", "graphviz",
-            "blockdiag", "bpmn", "bytefield", "seqdiag", "actdiag", "nwdiag", 
-            "packetdiag", "rackdiag", "c4plantuml", "dbml", "ditaa", "erd", 
-            "excalidraw", "nomnoml", "pikchr", "structurizr", "svgbob", 
-            "symbolator", "tikz", "umlet", "vega", "vegalite", "wavedrom", "wireviz"
-        ]
-        if v not in valid_langs:
-            raise ValueError(f"Invalid diagram language: {v}")
-        return v
+    def validate_lang(cls, value):
+        value = value.strip().lower()
+        value = ALIASES.get(value, value)
+        if value not in LANGUAGE_OUTPUT_SUPPORT:
+            raise ValueError(f"Unsupported diagram language: {value}")
+        return value
 
-    @field_validator("type")
+    @field_validator("code", "type")
     @classmethod
-    def validate_type(cls, v: str) -> str:
-        valid_types = ["class", "sequence", "activity", "component", "state", "object", "usecase", "mindmap", "git", "gantt"]
-        if v not in valid_types:
-            logger.error(f"Invalid diagram type: {v}")
-        return v
+    def nonblank(cls, value):
+        if not value.strip():
+            raise ValueError("Value must contain non-whitespace characters.")
+        return value
 
-    @field_validator("code")
-    @classmethod
-    def validate_code(cls, v: str) -> str:
-        if len(v) > 100000:
-            raise ValueError("Diagram code is too long.")
-        return v
 
-@app.post("/generate_diagram")
-async def generate_diagram_endpoint(diagram: DiagramRequest):
-    logger.info(f"Received request to generate a {diagram.lang} diagram.")
-    if not diagram.code:
-        raise HTTPException(status_code=422, detail="No diagram code provided.")
-    if not diagram.lang:
-        raise HTTPException(status_code=422, detail="No diagram language provided.")
-    if not diagram.type:
-        raise HTTPException(status_code=422, detail="No diagram type provided.")
-    logger.info(f"A request was made to generate a {diagram.lang} diagram.")
+class DiagramResponse(BaseModel):
+    url: str
+    content: str
+    playground: str
+
+
+def render_plantuml(code):
+    renderer = PlantUML(url="https://www.plantuml.com/plantuml/dpng", http_opts={"timeout": 20})
     try:
-        if diagram.lang in ["plantuml"]:
-            if not diagram.theme:
-                diagram.theme = "blueprint"
-            logger.info("Generating PlantUML diagram.")
-            plantuml = PlantUML(url="https://www.plantuml.com/plantuml/dpng")
-            url, content, playground = plantuml.generate_image_from_string(str(diagram.code))
-            print(url)
-            print(content)
-            if url is None:
-                raise HTTPException(status_code=400, detail="Invalid PlantUML syntax.")
-            return {"url": url, "content": content, "playground": playground}
-        elif diagram.lang in ["mermaid", "mermaidjs"]:
-            if not diagram.theme:
-                diagram.theme = "dark"
-            logger.info("Generating Mermaid diagram.")
-            diagram_state = generate_diagram_state(str(diagram.code), str(diagram.theme))
-            url, content, playground = generate_mermaid_live_editor_url(diagram_state)
-            if url is None:
-                raise HTTPException(status_code=400, detail="Invalid Mermaid syntax.")
-            return {"url": url, "content": content, "playground": playground}
-        elif diagram.lang in ["d2lang", "D2", "d2", "terrastruct"]:
-            logger.info(f"Generating D2 diagram via Kroki ({diagram.lang}).")
-            output_format = "svg"
-            url, content, playground = await generate_kroki_diagram(
-                "d2", str(diagram.code), output_format
+        return renderer.generate_image_from_string(code)
+    finally:
+        renderer.client.close()
+
+
+async def render_diagram(diagram: DiagramRequest) -> DiagramResponse:
+    try:
+        if backend_url():
+            result = await generate_with_uml_mcp(
+                diagram.lang, diagram.type, diagram.code, diagram.theme
             )
-            return {"url": url, "content": content, "playground": playground}
-        elif diagram.lang in KROKI_LANGUAGE_SUPPORT:
-            logger.info(f"Generating Kroki diagram ({diagram.lang}).")
-            output_format = "svg"
-            url, content, playground = await generate_kroki_diagram(diagram.lang, str(diagram.code), output_format)
-            return {"url": url, "content": content, "playground": playground}
+            return DiagramResponse(**result)
+        if diagram.lang == "plantuml":
+            url, content, playground = await anyio.to_thread.run_sync(render_plantuml, diagram.code)
+        elif diagram.lang == "mermaid":
+            state = generate_diagram_state(diagram.code, diagram.theme or "dark")
+            url, content, playground = generate_mermaid_live_editor_url(state)
         else:
-            raise HTTPException(status_code=422, detail=f"Unknown diagram type: {diagram.lang}")
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        logger.error(f"Error generating {diagram.lang} diagram: {str(e)}")
-        return {"error": "An error occurred while generating the diagram."}
+            url, content, playground = await generate_kroki_diagram(
+                diagram.lang, diagram.code, "svg"
+            )
+        if not url:
+            raise HTTPException(502, "Renderer did not return a diagram URL.")
+        return DiagramResponse(url=url, content=content, playground=playground or "")
+    except HTTPException:
+        raise
+    except PlantUMLHTTPError as exc:
+        raise HTTPException(502, "PlantUML could not render this diagram.") from exc
+    except Exception as exc:
+        logger.exception("Diagram rendering failed for %s", diagram.lang)
+        raise HTTPException(
+            502, "Diagram renderer failed. Check the source or retry later."
+        ) from exc
 
-@app.get("/logo.png")
+
+@app.post(
+    "/generate_diagram",
+    response_model=DiagramResponse,
+    operation_id="generate_diagram_endpoint",
+    responses={502: {"description": "Diagram renderer failed"}},
+)
+async def generate_diagram_endpoint(diagram: DiagramRequest):
+    return await render_diagram(diagram)
+
+
+@mcp.tool(
+    annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, open_world_hint=True)
+)
+async def generate_diagram(lang: str, type: str, code: str, theme: str = "") -> DiagramResponse:
+    """Generate a diagram URL and editor link from PlantUML, Mermaid, D2 or Kroki source."""
+    return await render_diagram(DiagramRequest(lang=lang, type=type, code=code, theme=theme))
+
+
+@app.get("/health", include_in_schema=False)
+async def health():
+    return {"status": "ok", "backend": "uml-mcp" if backend_url() else "direct"}
+
+
+@app.get("/logo.png", include_in_schema=False)
 def plugin_logo():
-    logger.info("Received request for plugin logo.")
-    return FileResponse("./.well-known/logo.png", media_type="image/png")
+    return FileResponse(ROOT / ".well-known/logo.png", media_type="image/png")
 
-@app.get("/.well-known/ai-plugin.json")
-async def plugin_manifest():
-    logger.info("Received request for plugin manifest.")
-    with open("./.well-known/ai-plugin.json") as f:
-        return JSONResponse(content=f.read(), media_type="text/json")
 
-@app.get("/openapi.yaml", response_class=PlainTextResponse)
-async def openapi_spec():
-    logger.info("Received request for OpenAPI spec.")
-    with open("./.well-known/openapi.yaml") as f:
-        return f.read()
+@app.get("/openapi.yaml", response_class=PlainTextResponse, include_in_schema=False)
+async def openapi_yaml():
+    return yaml.safe_dump(app.openapi(), sort_keys=False)
 
-@app.get("/openapi.json", response_class=PlainTextResponse)
-async def openapi_spec_json():
-    with open("./.well-known/openapi.json") as f:
-        return f.read()
 
-@app.get("/.well-known/privacy.txt", response_class=PlainTextResponse)
-async def privacy_policy():
-    return FileResponse("./.well-known/privacy.txt")
+@app.get("/.well-known/openapi.yaml", response_class=PlainTextResponse, include_in_schema=False)
+async def legacy_openapi_yaml():
+    return await openapi_yaml()
+
+
+@app.get("/.well-known/openapi.json", include_in_schema=False)
+async def legacy_openapi_json():
+    return app.openapi()
+
+
+app.mount("/.well-known", StaticFiles(directory=ROOT / ".well-known"), name="static")
+app.mount("/mcp", mcp_app)
+
 
 def main():
     import uvicorn
-    logger.info("Starting server.")
-    uvicorn.run(app, host="localhost", port=5003)
+
+    uvicorn.run(app, host="127.0.0.1", port=5003)
+
 
 if __name__ == "__main__":
     main()

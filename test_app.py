@@ -8,6 +8,11 @@ from plantuml import PlantUML, PlantUMLHTTPError
 
 from .app import app
 
+@pytest.fixture(autouse=True)
+def use_direct_backend(monkeypatch):
+    monkeypatch.setenv("UML_MCP_URL", "")
+
+
 client = TestClient(app)
 
 def test_root_endpoint():

@@ -1,157 +1,90 @@
-# D2COpenAIPlugin (Diagram2Code)
+# Diagram2Code
 
-[![CI](https://github.com/antoinebou12/D2COpenAIPlugin/actions/workflows/CI.yml/badge.svg)](https://github.com/antoinebou12/D2COpenAIPlugin/actions/workflows/CI.yml)
-[![GitHub stars](https://img.shields.io/github/stars/antoinebou12/D2COpenAIPlugin?style=flat&logo=github)](https://github.com/antoinebou12/D2COpenAIPlugin/stargazers)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/Framework-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
+Diagram2Code renders diagram source through [UML-MCP](https://github.com/antoinebou12/uml-mcp) and returns an image URL, the source, and an editor link. It supports Custom GPT Actions through its HTTP API and ChatGPT apps through Streamable HTTP MCP.
 
-**Diagram2Code** is a ChatGPT plugin backend that turns diagram source text into shareable URLs. It supports **PlantUML**, **Mermaid**, **D2**, and many other formats via **[Kroki](https://kroki.io/)**.
+The existing `POST /generate_diagram` request and response remain available. The legacy plugin manifest and asset URLs also remain available.
 
-Production deployment: [https://openai-uml-plugin.vercel.app](https://openai-uml-plugin.vercel.app) (manifest: [`.well-known/ai-plugin.json`](https://openai-uml-plugin.vercel.app/.well-known/ai-plugin.json)).
+## Run locally
 
-> OpenAI’s classic **Plugins** surface is limited today; this repo remains useful as a **reference FastAPI + OpenAPI plugin** and for **local development** with compatible ChatGPT clients. See the [OpenAI developer forum](https://community.openai.com/c/chat-plugins/20) if you hit setup issues.
-
-**Custom GPT:** [UML diagram creation expert](https://chat.openai.com/g/g-B1Bfoq5qh-uml-diagram-creation-expert)
-
----
-
-## Screenshots
-
-[![Diagram generator demo](https://raw.githubusercontent.com/antoinebou12/UMLOpenAIPlugin/main/docs/DiagramGeneratorPlugin.gif)](https://raw.githubusercontent.com/antoinebou12/UMLOpenAIPlugin/main/docs/DiagramGeneratorPlugin.gif)
-
-![Diagram2Code example](https://github.com/antoinebou12/D2COpenAIPlugin/assets/13888068/638e6ef6-b006-4f63-a7b8-b765fc0d8a41)
-
----
-
-## Features
-
-- **PlantUML** — server-side render via PlantUML public server
-- **Mermaid** — state encoding and Mermaid Live Editor links
-- **D2** — optional local `D2/main` encoder + D2 render/playground URLs
-- **Kroki-backed languages** — Graphviz, BPMN, Excalidraw, Vega, and [others](https://kroki.io/#supported-diagram-types) supported by this codebase’s allow-list in `app.py`
-- **Static plugin assets** — OpenAPI spec, logo, and privacy policy under `/.well-known`
-
----
-
-## Requirements
-
-- **Python** 3.10+ (CI uses 3.12)
-- **pip** and a virtual environment (recommended)
-
-Optional:
-
-- **`D2/main`** — small helper binary expected at `./D2/main` for D2 encoding in `D2/run_d2.py` (only needed if you use the D2 code paths locally)
-
----
-
-## Quick start
-
-```bash
-git clone https://github.com/antoinebou12/D2COpenAIPlugin.git
-cd D2COpenAIPlugin
-python -m venv .venv
-```
-
-Activate the venv (Windows PowerShell):
+Use Python 3.12 or newer. CI tests Python 3.12, 3.14 and 3.15.
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
+uv venv --python 3.14
+uv pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m uvicorn app:app --host 127.0.0.1 --port 5003
 ```
 
-Activate the venv (macOS / Linux):
+Open [API docs](http://127.0.0.1:5003/). The health endpoint is `/health`.
 
-```bash
-source .venv/bin/activate
-```
+## Custom GPT Actions
 
-Install dependencies and run the API:
+Import `https://openai-uml-plugin.vercel.app/openapi.json` in the GPT editor's Actions configuration. Choose no authentication for this public API. Keep the existing `generate_diagram_endpoint` operation when updating an existing GPT.
 
-```bash
-pip install -r requirements-dev.txt
-python -m pytest
-uvicorn app:app --host 127.0.0.1 --port 5003
-```
+[OpenAI's GPT Actions documentation](https://developers.openai.com/api/docs/actions/introduction) describes configuration. The server generates OpenAPI JSON and YAML from the live request and response models. The legacy `/.well-known/openapi.json` and `/.well-known/openapi.yaml` URLs serve the same schema.
 
-Equivalent one-liner after activation:
+The [existing Custom GPT](https://chatgpt.com/g/g-B1Bfoq5qh-uml-diagram-creation-expert) can continue using the HTTP API after its Action schema is refreshed.
 
-```bash
-python app.py
-```
+## MCP apps
 
-Interactive API docs: [http://127.0.0.1:5003/](http://127.0.0.1:5003/) (FastAPI `docs_url`).
+Connect an MCP client to `https://openai-uml-plugin.vercel.app/mcp/` or, during local development, `http://127.0.0.1:5003/mcp/`. The endpoint exposes `generate_diagram` with the same arguments as the HTTP API and a structured response. It uses stateless Streamable HTTP with JSON responses.
 
----
+For ChatGPT app setup, follow [OpenAI's MCP server documentation](https://developers.openai.com/plugins/build/mcp-server). Local development requires a reachable HTTPS endpoint or a supported tunnel. This project exposes tools; it does not include an embedded app widget.
 
 ## API
 
 `POST /generate_diagram`
 
-JSON body:
+| Field | Required | Description |
+|---|---|---|
+| `lang` | Yes | Source language, such as `plantuml`, `mermaid`, `d2`, or `graphviz` |
+| `type` | Yes | Diagram type, such as `class`, `sequence`, or `flowchart` |
+| `code` | Yes | Source text, between 1 and 100,000 characters; whitespace alone is rejected |
+| `theme` | No | Renderer theme; UML-MCP validates supported themes |
 
-| Field   | Type   | Required | Description |
-|---------|--------|----------|-------------|
-| `lang`  | string | yes      | e.g. `plantuml`, `mermaid`, `d2`, or a [Kroki](https://kroki.io/) type allowed by the server |
-| `type`  | string | yes      | e.g. `class`, `sequence`, `activity` (used for validation / logging) |
-| `code`  | string | yes      | Diagram source (max length enforced in `app.py`) |
-| `theme` | string | no       | PlantUML / Mermaid theming where applicable |
-
-Example (PlantUML) with **curl** (bash / Git Bash):
-
-```bash
-curl -s -X POST http://127.0.0.1:5003/generate_diagram -H "Content-Type: application/json" -d '{"lang":"plantuml","type":"sequence","code":"@startuml\nAlice -> Bob: hi\n@enduml"}'
-```
-
-Example with **PowerShell**:
+The `mermaidjs`, `d2lang`, and `terrastruct` aliases remain accepted. Language names ignore case. Supported languages follow the allow-list in `kroki/kroki.py`.
 
 ```powershell
-Invoke-RestMethod -Uri "http://127.0.0.1:5003/generate_diagram" -Method Post `
-  -ContentType "application/json" `
-  -Body '{"lang":"plantuml","type":"sequence","code":"@startuml\nAlice -> Bob: hi\n@enduml"}'
+Invoke-RestMethod -Uri 'http://127.0.0.1:5003/generate_diagram' -Method Post `
+  -ContentType 'application/json' `
+  -Body '{"lang":"mermaid","type":"flowchart","code":"graph TD; A-->B;"}'
 ```
 
----
+The response contains `url`, `content`, and `playground`. Invalid requests return HTTP 422. Renderer failures return HTTP 502. Returning a URL does not establish that the image service will render every source successfully.
 
-## Using the plugin in ChatGPT (localhost)
+## UML-MCP backend
 
-1. Run the server on **port 5003** (see above).
-2. In ChatGPT, open **Plugins** → **Plugin store** → **Develop your own plugin**.
-3. Enter `localhost:5003` and choose **Find manifest file** so ChatGPT loads `/.well-known/ai-plugin.json`.
+By default, requests call `generate_uml` on `https://uml-mcp.antoineboucher.info/mcp`. PlantUML requests use `type` as UML-MCP's diagram type; other languages use `lang`. The bridge requests SVG and preserves the original source in `content`.
 
-Step-by-step screenshots: [docs/GUIDE.md](docs/GUIDE.md).
+To use your own UML-MCP deployment:
 
----
+```powershell
+$env:UML_MCP_URL = 'https://your-uml-server.example/mcp'
+```
 
-## Deployment (Vercel)
+To use the original direct PlantUML, Mermaid and Kroki renderers:
 
-The app is configured for [Vercel](https://vercel.com/) with `@vercel/python` in [`vercel.json`](vercel.json). The production host used in the manifest is `https://openai-uml-plugin.vercel.app`.
+```powershell
+$env:UML_MCP_URL = ''
+```
 
----
+The bridge has a 30-second timeout. A configured backend failure returns HTTP 502. It does not silently send the request to another provider.
 
-## Repository layout (high level)
+## Deployment
 
-| Path | Role |
-|------|------|
-| `app.py` | FastAPI app, CORS, `/generate_diagram` |
-| `.well-known/` | `ai-plugin.json`, `openapi.yaml`, logo, privacy |
-| `plantuml/`, `mermaid/`, `D2/`, `kroki/` | Language-specific generation helpers |
-| `docs/` | Extra guides and examples |
+`vercel.json` routes requests to the FastAPI ASGI app. Runtime dependencies are in `requirements.txt`; development dependencies are in `requirements-dev.txt`. The Node build environment uses version 26.
 
----
+Set `PUBLIC_BASE_URL` to your public HTTPS origin when deploying under another domain. It controls OpenAPI's server URL and the MCP host allow-list. Vercel deployment and production hostnames are included automatically. Use Python 3.14 on Vercel; CI also checks 3.15 independently of the hosting runtime.
 
-## Contributing / security
+The configured production URL is [openai-uml-plugin.vercel.app](https://openai-uml-plugin.vercel.app). Pushing code does not establish that its deployment is healthy; check `/health` and an MCP tool call after deployment.
 
-- Tests: `python -m pytest` (see [`.github/workflows/CI.yml`](.github/workflows/CI.yml))
-- Security policy: [SECURITY.md](SECURITY.md)
+## Verification
 
----
+```powershell
+.\.venv\Scripts\ruff.exe check app.py uml_backend.py test_modern_api.py
+.\.venv\Scripts\python.exe -m pytest -q
+```
 
-## License
+Tests cover the HTTP contract, schema consistency, input validation, backend translation, renderer failures, and MCP initialization, discovery and generation. Original PlantUML helper tests contact the public renderer. The Linux-only D2 helper test is skipped on Windows.
 
-MIT — see [LICENSE](LICENSE).
-
----
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=antoinebou12/D2COpenAIPlugin&type=Date)](https://star-history.com/#antoinebou12/D2COpenAIPlugin&Date)
+MIT license. See [LICENSE](LICENSE) and [SECURITY.md](SECURITY.md).

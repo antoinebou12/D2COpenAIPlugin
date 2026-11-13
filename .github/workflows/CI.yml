@@ -1,49 +1,39 @@
-name: Python application test with FastAPI and Pytest
+name: API and MCP tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.14", "3.15"]
     steps:
-    - uses: actions/checkout@v7
-
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v7
-      with:
-        python-version: "3.15"
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-dev.txt
-    
-    - name: Run tests with pytest
-      run: |
-        python -m pytest
-    
-    - name: Run App with timeout
-      run: |
-        # Start the app in the background
-        python app.py &
-        APP_PID=$!
-        
-        # Wait for 1 minutes (60 seconds)
-        sleep 60
-        
-        # Check if the process is still running and kill it if it is
-        if ps -p $APP_PID > /dev/null; then
-          echo "Application is still running after 10 minutes, terminating..."
-          kill $APP_PID
-        else
-          echo "Application has already terminated."
-        fi
-        
-        # Wait for the process to terminate
-        wait $APP_PID || true
-        
-        echo "Application run completed."
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r requirements-dev.txt
+      - run: ruff check app.py uml_backend.py test_modern_api.py
+      - run: python -m pytest -q
+      - name: Check server startup
+        shell: bash
+        run: |
+          python -m uvicorn app:app --host 127.0.0.1 --port 5003 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:5003/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1

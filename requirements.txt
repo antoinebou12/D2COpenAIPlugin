@@ -1,5 +1,8 @@
 fastapi==0.162.4
-uvicorn==0.44.0
+uvicorn==0.54.0
 httpx==0.28.1
-pydantic>=2.10.0,<3
-aiofiles
+pydantic>=2.14,<3
+mcp>=2.3,<3
+pyyaml>=6.0.3,<7
+anyio>=4.12,<5
+aiofiles>=25,<26

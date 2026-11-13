@@ -1,114 +1,43 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Diagram To Code",
-    "version": "1.1.2"
+    "title": "Diagram2Code",
+    "description": "Diagram rendering API for Custom GPT Actions and MCP apps, with an optional UML-MCP backend.",
+    "version": "2.0.0"
   },
   "servers": [
     {
-      "url": "https://openai-uml-plugin.vercel.app",
-      "description": "Production server"
+      "url": "https://openai-uml-plugin.vercel.app"
     }
   ],
   "paths": {
-    "/.well-known/privacy.txt": {
-      "get": {
-        "summary": "Privacy Policy",
-        "operationId": "privacy_policy",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/.well-known/ai-plugin.json": {
-      "get": {
-        "operationId": "plugin_manifest",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "summary": "Plugin Manifest"
-      }
-    },
     "/generate_diagram": {
       "post": {
+        "summary": "Generate Diagram Endpoint",
         "operationId": "generate_diagram_endpoint",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "lang": {
-                    "type": "string",
-                    "title": "Diagram Language",
-                    "description": "The language of the diagram like plantuml, mermaid, etc."
-                  },
-                  "type": {
-                    "type": "string",
-                    "title": "Diagram Type",
-                    "description": "The type of the diagram like class, sequence, etc."
-                  },
-                  "code": {
-                    "type": "string",
-                    "title": "Diagram Code",
-                    "description": "The code of the diagram."
-                  },
-                  "theme": {
-                    "type": "string",
-                    "title": "Theme",
-                    "description": "Optional theme for the diagram."
-                  }
-                },
-                "required": [
-                  "lang",
-                  "type",
-                  "code"
-                ]
+                "$ref": "#/components/schemas/DiagramRequest"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
-            "description": "Successful diagram generation",
+            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Response Generate Diagram Endpoint",
-                  "type": "object",
-                  "properties": {
-                    "url": {
-                      "type": "string",
-                      "description": "URL to the generated diagram."
-                    },
-                    "message": {
-                      "type": "string",
-                      "description": "A message about the diagram generation, e.g., success or failure reason."
-                    }
-                  },
-                  "required": [
-                    "url"
-                  ]
+                  "$ref": "#/components/schemas/DiagramResponse"
                 }
               }
             }
+          },
+          "502": {
+            "description": "Diagram renderer failed"
           },
           "422": {
             "description": "Validation Error",
@@ -120,57 +49,83 @@
               }
             }
           }
-        },
-        "summary": "Generate Diagram Endpoint"
-      }
-    },
-    "/logo.png": {
-      "get": {
-        "operationId": "plugin_logo",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "summary": "Plugin Logo"
-      }
-    },
-    "/openapi.yaml": {
-      "get": {
-        "operationId": "openapi_spec",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "summary": "OpenAPI Spec"
+        }
       }
     }
   },
   "components": {
     "schemas": {
+      "DiagramRequest": {
+        "properties": {
+          "lang": {
+            "type": "string",
+            "title": "Lang",
+            "description": "Source language: plantuml, mermaid, d2, graphviz, or another supported Kroki language."
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Type",
+            "description": "Diagram type, such as class, sequence or flowchart."
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Code",
+            "description": "Diagram source text."
+          },
+          "theme": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Theme",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "lang",
+          "type",
+          "code"
+        ],
+        "title": "DiagramRequest"
+      },
+      "DiagramResponse": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "playground": {
+            "type": "string",
+            "title": "Playground"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "content",
+          "playground"
+        ],
+        "title": "DiagramResponse"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
             "items": {
               "$ref": "#/components/schemas/ValidationError"
             },
-            "title": "Detail",
-            "type": "array"
+            "type": "array",
+            "title": "Detail"
           }
         },
-        "title": "HTTPValidationError",
-        "type": "object"
+        "type": "object",
+        "title": "HTTPValidationError"
       },
       "ValidationError": {
         "properties": {
@@ -185,25 +140,32 @@
                 }
               ]
             },
-            "title": "Location",
-            "type": "array"
+            "type": "array",
+            "title": "Location"
           },
           "msg": {
-            "title": "Message",
-            "type": "string"
+            "type": "string",
+            "title": "Message"
           },
           "type": {
-            "title": "Error Type",
-            "type": "string"
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
+        "type": "object",
         "required": [
           "loc",
           "msg",
           "type"
         ],
-        "title": "ValidationError",
-        "type": "object"
+        "title": "ValidationError"
       }
     }
   }
