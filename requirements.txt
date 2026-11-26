@@ -1,6 +1,6 @@
 fastapi==0.162.5
 uvicorn==0.54.0
-httpx==0.28.1
+httpx==0.29.0
 pydantic>=2.14,<3
 mcp>=2.3,<3
 pyyaml>=6.0.3,<7
